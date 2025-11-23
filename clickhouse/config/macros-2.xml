@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<clickhouse>
+    <macros>
+        <shard>01</shard>
+        <replica>02</replica>
+        <cluster>pagga_cluster</cluster>
+    </macros>
+</clickhouse>

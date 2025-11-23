@@ -1,0 +1,233 @@
+version: '3.8'
+
+services:
+  zookeeper:
+    image: zookeeper:3.8
+    container_name: ${ZOOKEEPER_CONTAINER}
+    env_file:
+      - .env
+    ports:
+      - "2181:2181"
+    environment:
+      ZOO_MY_ID: ${ZOO_MY_ID}
+      ZOO_SERVERS: ${ZOO_SERVERS}
+      ZOO_4LW_COMMANDS_WHITELIST: srvr,mntr,ruok,conf
+    volumes:
+      - zookeeper_data:/data
+      - zookeeper_logs:/datalog
+      - ./scripts/zookeeper-entrypoint.sh:/usr/local/bin/zookeeper-entrypoint.sh:ro
+    command: ["/bin/bash", "/usr/local/bin/zookeeper-entrypoint.sh"]
+    networks:
+      - clickhouse-network
+    healthcheck:
+      test: ["CMD-SHELL", "echo ruok | nc -w 2 localhost 2181 | grep -q imok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  clickhouse-1:
+    image: clickhouse/clickhouse-server:25.1
+    hostname: clickhouse-1
+    container_name: ${CLICKHOUSE_1_CONTAINER}
+    env_file:
+      - .env
+    # Ports are not exposed externally - access only through HAProxy
+    expose:
+      - "8123"
+      - "9000"
+      - "9009"
+    environment:
+      CLICKHOUSE_DB: ${CLICKHOUSE_DATABASE}
+      CLICKHOUSE_USER: ${CLICKHOUSE_ADMIN_USER}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_ADMIN_PASSWORD}
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: ${CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT}
+      CLICKHOUSE_USER_DEFAULT_ROLE: ${CLICKHOUSE_USER_DEFAULT_ROLE}
+    volumes:
+      - ./config/config-1.xml:/etc/clickhouse-server/config.xml
+      - ./config/users.xml:/etc/clickhouse-server/users.xml
+      - ./config/macros-1.xml:/etc/clickhouse-server/config.d/macros.xml
+      - ./config/clusters.xml:/etc/clickhouse-server/config.d/clusters.xml
+      - clickhouse_1_data:/var/lib/clickhouse
+      - clickhouse_1_logs:/var/log/clickhouse-server
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    networks:
+      - clickhouse-network
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+      nproc:
+        soft: 65535
+        hard: 65535
+
+  clickhouse-2:
+    image: clickhouse/clickhouse-server:25.1
+    hostname: clickhouse-2
+    container_name: ${CLICKHOUSE_2_CONTAINER}
+    env_file:
+      - .env
+    # Ports are not exposed externally - access only through HAProxy
+    expose:
+      - "8123"
+      - "9000"
+      - "9009"
+    environment:
+      CLICKHOUSE_DB: ${CLICKHOUSE_DATABASE}
+      CLICKHOUSE_USER: ${CLICKHOUSE_ADMIN_USER}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_ADMIN_PASSWORD}
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: ${CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT}
+      CLICKHOUSE_USER_DEFAULT_ROLE: ${CLICKHOUSE_USER_DEFAULT_ROLE}
+    volumes:
+      - ./config/config-2.xml:/etc/clickhouse-server/config.xml
+      - ./config/users.xml:/etc/clickhouse-server/users.xml
+      - ./config/macros-2.xml:/etc/clickhouse-server/config.d/macros.xml
+      - ./config/clusters.xml:/etc/clickhouse-server/config.d/clusters.xml
+      - clickhouse_2_data:/var/lib/clickhouse
+      - clickhouse_2_logs:/var/log/clickhouse-server
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    networks:
+      - clickhouse-network
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+      nproc:
+        soft: 65535
+        hard: 65535
+
+  clickhouse-3:
+    image: clickhouse/clickhouse-server:25.1
+    hostname: clickhouse-3
+    container_name: ${CLICKHOUSE_3_CONTAINER}
+    env_file:
+      - .env
+    # Ports are not exposed externally - access only through HAProxy
+    expose:
+      - "8123"
+      - "9000"
+      - "9009"
+    environment:
+      CLICKHOUSE_DB: ${CLICKHOUSE_DATABASE}
+      CLICKHOUSE_USER: ${CLICKHOUSE_ADMIN_USER}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_ADMIN_PASSWORD}
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: ${CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT}
+      CLICKHOUSE_USER_DEFAULT_ROLE: ${CLICKHOUSE_USER_DEFAULT_ROLE}
+    volumes:
+      - ./config/config-3.xml:/etc/clickhouse-server/config.xml
+      - ./config/users.xml:/etc/clickhouse-server/users.xml
+      - ./config/macros-3.xml:/etc/clickhouse-server/config.d/macros.xml
+      - ./config/clusters.xml:/etc/clickhouse-server/config.d/clusters.xml
+      - clickhouse_3_data:/var/lib/clickhouse
+      - clickhouse_3_logs:/var/log/clickhouse-server
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    networks:
+      - clickhouse-network
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+      nproc:
+        soft: 65535
+        hard: 65535
+
+  clickhouse-4:
+    image: clickhouse/clickhouse-server:25.1
+    hostname: clickhouse-4
+    container_name: ${CLICKHOUSE_4_CONTAINER}
+    env_file:
+      - .env
+    # Ports are not exposed externally - access only through HAProxy
+    expose:
+      - "8123"
+      - "9000"
+      - "9009"
+    environment:
+      CLICKHOUSE_DB: ${CLICKHOUSE_DATABASE}
+      CLICKHOUSE_USER: ${CLICKHOUSE_ADMIN_USER}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_ADMIN_PASSWORD}
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: ${CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT}
+      CLICKHOUSE_USER_DEFAULT_ROLE: ${CLICKHOUSE_USER_DEFAULT_ROLE}
+    volumes:
+      - ./config/config-4.xml:/etc/clickhouse-server/config.xml
+      - ./config/users.xml:/etc/clickhouse-server/users.xml
+      - ./config/macros-4.xml:/etc/clickhouse-server/config.d/macros.xml
+      - ./config/clusters.xml:/etc/clickhouse-server/config.d/clusters.xml
+      - clickhouse_4_data:/var/lib/clickhouse
+      - clickhouse_4_logs:/var/log/clickhouse-server
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    networks:
+      - clickhouse-network
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+      nproc:
+        soft: 65535
+        hard: 65535
+
+  haproxy:
+    image: haproxy:3.1-alpine
+    container_name: haproxy-clickhouse
+    ports:
+      - "8123:8123"  # ClickHouse HTTP port
+      - "9000:9000"  # ClickHouse Native port
+      - "8404:8404"  # HAProxy statistics
+    volumes:
+      - ./config/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    depends_on:
+      - clickhouse-1
+      - clickhouse-2
+      - clickhouse-3
+      - clickhouse-4
+    networks:
+      - clickhouse-network
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 8123 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+
+  migrator:
+    build:
+      context: ./clickhouse-migrator
+    container_name: clickhouse-migrator
+    env_file:
+      - .env
+    depends_on:
+      haproxy:
+        condition: service_healthy
+    volumes:
+      - ./migrations:/migrations
+    working_dir: /work
+    entrypoint: ["/usr/local/bin/clickhouse-migrator"]
+    command: ["--help"]
+    networks:
+      - clickhouse-network
+
+volumes:
+  zookeeper_data:
+  zookeeper_logs:
+  clickhouse_1_data:
+  clickhouse_1_logs:
+  clickhouse_2_data:
+  clickhouse_2_logs:
+  clickhouse_3_data:
+  clickhouse_3_logs:
+  clickhouse_4_data:
+  clickhouse_4_logs:
+
+
+networks:
+  clickhouse-network:
+    driver: bridge

@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<clickhouse>
+    <remote_servers>
+        <!-- Topology c2sh2rep: 2 shards with 2 replicas each - balanced solution -->
+        <pagga_cluster>
+            <shard>
+                <replica>
+                    <host>clickhouse-1</host>
+                    <port>9000</port>
+                    <user>admin</user>
+                    <password>CH_S3cur3_2025_Admin_PAGGA_987</password>
+                </replica>
+                <replica>
+                    <host>clickhouse-2</host>
+                    <port>9000</port>
+                    <user>admin</user>
+                    <password>CH_S3cur3_2025_Admin_PAGGA_987</password>
+                </replica>
+            </shard>
+            <shard>
+                <replica>
+                    <host>clickhouse-3</host>
+                    <port>9000</port>
+                    <user>admin</user>
+                    <password>CH_S3cur3_2025_Admin_PAGGA_987</password>
+                </replica>
+                <replica>
+                    <host>clickhouse-4</host>
+                    <port>9000</port>
+                    <user>admin</user>
+                    <password>CH_S3cur3_2025_Admin_PAGGA_987</password>
+                </replica>
+            </shard>
+        </pagga_cluster>
+    </remote_servers>
+    
+    <zookeeper>
+        <node>
+            <host>zookeeper</host>
+            <port>2181</port>
+        </node>
+        <session_timeout_ms>30000</session_timeout_ms>
+        <operation_timeout_ms>10000</operation_timeout_ms>
+        <root>/clickhouse</root>
+        <identity>user:password</identity>
+    </zookeeper>
+</clickhouse>

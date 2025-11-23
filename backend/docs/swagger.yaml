@@ -1,0 +1,454 @@
+basePath: /api/v1
+definitions:
+  aqua.ConnectLiquidityRequest:
+    properties:
+      amount:
+        type: string
+      lender_address:
+        type: string
+      token_address:
+        type: string
+    type: object
+  aqua.WithdrawLiquidityRequest:
+    properties:
+      amount:
+        type: string
+      lender_address:
+        type: string
+    type: object
+  auction.BidRequest:
+    properties:
+      auction_id:
+        type: integer
+      lender_address:
+        type: string
+      limit:
+        type: string
+      rate_bps:
+        type: integer
+    type: object
+  auction.CreateAuctionRequest:
+    properties:
+      amount:
+        type: string
+      bidding_duration:
+        type: integer
+      borrower_address:
+        type: string
+      duration:
+        type: integer
+    type: object
+  repositories.RFQModel:
+    properties:
+      amount:
+        type: string
+      borrowerAddress:
+        type: string
+      collateralType:
+        format: int32
+        type: integer
+      createdAt:
+        format: int64
+        type: integer
+      duration:
+        format: int64
+        type: integer
+      flowDescription:
+        type: string
+      id:
+        format: int64
+        type: integer
+      status:
+        type: string
+    type: object
+  rfq.CreateRFQRequest:
+    properties:
+      amount:
+        type: string
+      borrower_address:
+        type: string
+      collateral_type:
+        type: integer
+      duration:
+        type: integer
+      flow_description:
+        type: string
+    type: object
+  rfq.QuoteRequest:
+    properties:
+      collateral_required:
+        type: string
+      lender_address:
+        type: string
+      limit:
+        type: string
+      rate_bps:
+        type: integer
+      rfq_id:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: API для слоя финансирования агентов поверх протокола 402 (x402/A2A)
+    с интеграцией 1inch Aqua
+  license:
+    name: MIT
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Aqua x402 Finance Layer API
+  version: "1.0"
+paths:
+  /aqua/liquidity:
+    post:
+      consumes:
+      - application/json
+      description: Подключает ликвидность кредитора через 1inch Aqua
+      parameters:
+      - description: Данные ликвидности
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/aqua.ConnectLiquidityRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Подключить ликвидность
+      tags:
+      - Aqua
+  /aqua/liquidity/{address}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает доступную ликвидность для кредитора
+      parameters:
+      - description: Адрес кредитора
+        in: path
+        name: address
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить ликвидность
+      tags:
+      - Aqua
+  /aqua/withdraw:
+    post:
+      consumes:
+      - application/json
+      description: Выводит ликвидность из Aqua
+      parameters:
+      - description: Данные вывода
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/aqua.WithdrawLiquidityRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Вывести ликвидность
+      tags:
+      - Aqua
+  /auction:
+    post:
+      consumes:
+      - application/json
+      description: Создаёт новый аукцион для финансирования
+      parameters:
+      - description: Данные аукциона
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auction.CreateAuctionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Создать аукцион
+      tags:
+      - Auction
+  /auction/{id}/bid:
+    post:
+      consumes:
+      - application/json
+      description: Размещает ставку на конкретном аукционе
+      parameters:
+      - description: Auction ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные ставки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auction.BidRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Разместить ставку
+      tags:
+      - Auction
+  /auction/{id}/finalize:
+    post:
+      consumes:
+      - application/json
+      description: Финализирует аукцион, выбирая лучшую ставку
+      parameters:
+      - description: Auction ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Финализировать аукцион
+      tags:
+      - Auction
+  /rfq:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список всех RFQ запросов с пагинацией
+      parameters:
+      - default: 20
+        description: Лимит записей
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Смещение
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/repositories.RFQModel'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Список RFQ
+      tags:
+      - RFQ
+    post:
+      consumes:
+      - application/json
+      description: Создаёт новый запрос на предложение (Request for Quote)
+      parameters:
+      - description: RFQ данные
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/rfq.CreateRFQRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/repositories.RFQModel'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Создать RFQ
+      tags:
+      - RFQ
+  /rfq/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о конкретном RFQ запросе
+      parameters:
+      - description: RFQ ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/repositories.RFQModel'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить RFQ
+      tags:
+      - RFQ
+  /rfq/{id}/quote:
+    post:
+      consumes:
+      - application/json
+      description: Отправляет предложение (quote) для конкретного RFQ
+      parameters:
+      - description: RFQ ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные предложения
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/rfq.QuoteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Отправить предложение
+      tags:
+      - RFQ
+schemes:
+- http
+- https
+swagger: "2.0"

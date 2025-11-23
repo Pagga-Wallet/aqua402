@@ -1,0 +1,85 @@
+version: '3.8'
+
+# IMPORTANT: Before running this docker-compose, you must start the ClickHouse cluster:
+# cd clickhouse && docker-compose up -d
+# ClickHouse cluster must be available at localhost:8123 through HAProxy
+
+services:
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: aqua-x402-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-admin}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-changeme}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - aqua-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: aqua-x402-backend
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: 8080
+      CLICKHOUSE_DSN: clickhouse://admin:${CLICKHOUSE_PASSWORD:-changeme}@host.docker.internal:8123/${CLICKHOUSE_DATABASE:-aqua_x402}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-admin}:${RABBITMQ_PASSWORD:-changeme}@rabbitmq:5672/
+      EVM_RPC_URL: ${EVM_RPC_URL:-http://hardhat-node:8545}
+    depends_on:
+      - rabbitmq
+      - hardhat-node
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - aqua-network
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: aqua-x402-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      VITE_API_URL: http://localhost:8080
+      VITE_WALLETCONNECT_PROJECT_ID: ${WALLETCONNECT_PROJECT_ID:-}
+    depends_on:
+      - backend
+    networks:
+      - aqua-network
+
+  # Hardhat Node (local blockchain)
+  hardhat-node:
+    image: node:20-alpine
+    container_name: aqua-x402-hardhat-node
+    working_dir: /app
+    ports:
+      - "8545:8545"
+    volumes:
+      - ./contracts:/app
+    command: sh -c "apk add --no-cache curl && npm install && npx hardhat node --hostname 0.0.0.0"
+    networks:
+      - aqua-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8545 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  rabbitmq_data:
+
+networks:
+  aqua-network:
+    driver: bridge
+

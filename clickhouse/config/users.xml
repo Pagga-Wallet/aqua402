@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<clickhouse>
+    <users>
+        <default>
+            <password>CH_D3fault_2025_User_PAGGA_456</password>
+            <networks>
+                <ip>::/0</ip>
+            </networks>
+            <profile>default</profile>
+            <quota>default</quota>
+        </default>
+        
+        <admin>
+            <password>CH_S3cur3_2025_Admin_PAGGA_987</password>
+            <access_management>1</access_management>
+            <networks>
+                <ip>::/0</ip>
+            </networks>
+            <profile>default</profile>
+            <quota>default</quota>
+        </admin>
+    </users>
+
+    <profiles>
+        <default>
+            <max_memory_usage>10000000000</max_memory_usage>
+            <use_uncompressed_cache>0</use_uncompressed_cache>
+            <load_balancing>random</load_balancing>
+            <max_concurrent_queries_for_user>100</max_concurrent_queries_for_user>
+            
+            <!-- Increased timeouts for data-loader-service -->
+            <connect_timeout>600</connect_timeout>
+            <send_timeout>600</send_timeout>
+            <receive_timeout>600</receive_timeout>
+            <max_execution_time>14400</max_execution_time>
+        </default>
+    </profiles>
+
+    <quotas>
+        <default>
+            <interval>
+                <duration>3600</duration>
+                <queries>0</queries>
+                <errors>0</errors>
+                <result_rows>0</result_rows>
+                <read_rows>0</read_rows>
+                <execution_time>0</execution_time>
+            </interval>
+        </default>
+    </quotas>
+</clickhouse>
