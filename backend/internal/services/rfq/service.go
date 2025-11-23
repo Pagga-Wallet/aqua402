@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/aqua-x402/backend/internal/repositories"
-	"github.com/aqua-x402/backend/internal/queues"
+	"github.com/Pagga-Wallet/aqua402/internal/queues"
+	"github.com/Pagga-Wallet/aqua402/internal/repositories"
 	"go.uber.org/zap"
 )
 
@@ -34,9 +34,9 @@ type CreateRFQRequest struct {
 
 type QuoteRequest struct {
 	RFQID              uint64 `json:"rfq_id"`
-	LenderAddress     string `json:"lender_address"`
-	RateBps           uint16 `json:"rate_bps"`
-	Limit             string `json:"limit"`
+	LenderAddress      string `json:"lender_address"`
+	RateBps            uint16 `json:"rate_bps"`
+	Limit              string `json:"limit"`
 	CollateralRequired string `json:"collateral_required"`
 }
 
@@ -77,7 +77,7 @@ func (s *Service) SubmitQuote(ctx context.Context, req QuoteRequest) error {
 		"lender_address": req.LenderAddress,
 		"rate_bps":       req.RateBps,
 		"limit":          req.Limit,
-		"collateral":      req.CollateralRequired,
+		"collateral":     req.CollateralRequired,
 	}
 
 	if err := s.queue.Publish("rfq.quotes", event); err != nil {
@@ -93,6 +93,5 @@ func (s *Service) GetRFQ(ctx context.Context, id uint64) (*repositories.RFQModel
 }
 
 func (s *Service) ListRFQs(ctx context.Context, limit, offset int) ([]*repositories.RFQModel, error) {
-	// TODO: Implement pagination
-	return []*repositories.RFQModel{}, nil
+	return s.repo.ListRFQs(ctx, limit, offset)
 }

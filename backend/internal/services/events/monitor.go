@@ -6,9 +6,9 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/aqua-x402/backend/internal/queues"
-	"github.com/aqua-x402/backend/internal/repositories"
-	"github.com/aqua-x402/backend/pkg/evm"
+	"github.com/Pagga-Wallet/aqua402/internal/queues"
+	"github.com/Pagga-Wallet/aqua402/internal/repositories"
+	"github.com/Pagga-Wallet/aqua402/pkg/evm"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"

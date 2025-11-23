@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/aqua-x402/backend/internal/services/aqua"
+	"github.com/Pagga-Wallet/aqua402/internal/services/aqua"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aqua-x402/backend/internal/queues"
+	"github.com/Pagga-Wallet/aqua402/internal/queues"
 	"go.uber.org/zap"
 )
 

@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/aqua-x402/backend/internal/repositories"
-	"github.com/aqua-x402/backend/internal/services/rfq"
+	"github.com/Pagga-Wallet/aqua402/internal/repositories"
+	"github.com/Pagga-Wallet/aqua402/internal/services/rfq"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )

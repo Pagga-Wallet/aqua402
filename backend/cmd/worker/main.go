@@ -9,11 +9,11 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/aqua-x402/backend/internal/queues"
-	"github.com/aqua-x402/backend/internal/repositories"
-	eventmonitor "github.com/aqua-x402/backend/internal/services/events"
-	"github.com/aqua-x402/backend/pkg/config"
-	"github.com/aqua-x402/backend/pkg/evm"
+	"github.com/Pagga-Wallet/aqua402/internal/queues"
+	"github.com/Pagga-Wallet/aqua402/internal/repositories"
+	eventmonitor "github.com/Pagga-Wallet/aqua402/internal/services/events"
+	"github.com/Pagga-Wallet/aqua402/pkg/config"
+	"github.com/Pagga-Wallet/aqua402/pkg/evm"
 	"go.uber.org/zap"
 )
 

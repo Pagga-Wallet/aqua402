@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	wsHub "github.com/aqua-x402/backend/internal/websocket"
+	wsHub "github.com/Pagga-Wallet/aqua402/internal/websocket"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 )

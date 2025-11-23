@@ -3,7 +3,7 @@ package x402
 import (
 	"context"
 
-	"github.com/aqua-x402/backend/pkg/evm"
+	"github.com/Pagga-Wallet/aqua402/pkg/evm"
 	"go.uber.org/zap"
 )
 

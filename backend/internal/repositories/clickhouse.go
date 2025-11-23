@@ -98,3 +98,70 @@ type RFQModel struct {
 	Status          string
 	CreatedAt       int64
 }
+
+// AuctionRepository handles Auction data operations
+type AuctionRepository struct {
+	*Repository
+}
+
+// NewAuctionRepository creates a new Auction repository
+func NewAuctionRepository(repo *Repository) *AuctionRepository {
+	return &AuctionRepository{Repository: repo}
+}
+
+// SaveAuction saves an Auction to the database
+func (r *AuctionRepository) SaveAuction(ctx context.Context, auction *AuctionModel) error {
+	query := `INSERT INTO auctions (borrower_address, amount, duration, end_time, status, created_at) 
+	          VALUES (?, ?, ?, ?, ?, ?)`
+	_, err := r.db.ExecContext(ctx, query,
+		auction.BorrowerAddress, auction.Amount, auction.Duration,
+		auction.EndTime, auction.Status, auction.CreatedAt)
+	return err
+}
+
+// GetAuction retrieves an Auction by ID
+func (r *AuctionRepository) GetAuction(ctx context.Context, id uint64) (*AuctionModel, error) {
+	auction := new(AuctionModel)
+	query := `SELECT id, borrower_address, amount, duration, end_time, status, created_at 
+	          FROM auctions WHERE id = ?`
+	err := r.db.QueryRowContext(ctx, query, id).Scan(
+		&auction.ID, &auction.BorrowerAddress, &auction.Amount, &auction.Duration,
+		&auction.EndTime, &auction.Status, &auction.CreatedAt)
+	return auction, err
+}
+
+// ListAuctions retrieves Auctions with pagination
+func (r *AuctionRepository) ListAuctions(ctx context.Context, limit, offset int) ([]*AuctionModel, error) {
+	query := `SELECT id, borrower_address, amount, duration, end_time, status, created_at 
+	          FROM auctions ORDER BY created_at DESC LIMIT ? OFFSET ?`
+	rows, err := r.db.QueryContext(ctx, query, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var auctions []*AuctionModel
+	for rows.Next() {
+		auction := new(AuctionModel)
+		err := rows.Scan(
+			&auction.ID, &auction.BorrowerAddress, &auction.Amount, &auction.Duration,
+			&auction.EndTime, &auction.Status, &auction.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		auctions = append(auctions, auction)
+	}
+	return auctions, rows.Err()
+}
+
+// AuctionModel represents Auction data in ClickHouse
+type AuctionModel struct {
+	ID              uint64
+	BorrowerAddress string
+	Amount          string
+	Duration        uint64
+	BiddingDuration uint64
+	EndTime         int64
+	Status          string
+	CreatedAt       int64
+}

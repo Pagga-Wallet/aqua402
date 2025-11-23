@@ -54,6 +54,10 @@ export class APIClient {
     return this.request(`/api/v1/rfq/${id}`)
   }
 
+  async listRFQs(limit: number = 20, offset: number = 0) {
+    return this.request(`/api/v1/rfq?limit=${limit}&offset=${offset}`)
+  }
+
   async submitQuote(rfqId: string, data: {
     lender_address: string
     rate_bps: number
@@ -88,6 +92,14 @@ export class APIClient {
       method: 'POST',
       body: JSON.stringify(data),
     })
+  }
+
+  async listAuctions(limit: number = 20, offset: number = 0) {
+    return this.request(`/api/v1/auction?limit=${limit}&offset=${offset}`)
+  }
+
+  async getAuction(id: string) {
+    return this.request(`/api/v1/auction/${id}`)
   }
 
   // Aqua endpoints

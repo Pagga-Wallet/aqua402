@@ -4,17 +4,20 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aqua-x402/backend/internal/queues"
+	"github.com/Pagga-Wallet/aqua402/internal/queues"
+	"github.com/Pagga-Wallet/aqua402/internal/repositories"
 	"go.uber.org/zap"
 )
 
 type Service struct {
+	repo   *repositories.AuctionRepository
 	queue  *queues.Queue
 	logger *zap.Logger
 }
 
-func NewService(queue *queues.Queue, logger *zap.Logger) *Service {
+func NewService(repo *repositories.AuctionRepository, queue *queues.Queue, logger *zap.Logger) *Service {
 	return &Service{
+		repo:   repo,
 		queue:  queue,
 		logger: logger,
 	}
@@ -28,19 +31,19 @@ type CreateAuctionRequest struct {
 }
 
 type BidRequest struct {
-	AuctionID   uint64 `json:"auction_id"`
+	AuctionID     uint64 `json:"auction_id"`
 	LenderAddress string `json:"lender_address"`
-	RateBps     uint16 `json:"rate_bps"`
-	Limit       string `json:"limit"`
+	RateBps       uint16 `json:"rate_bps"`
+	Limit         string `json:"limit"`
 }
 
 func (s *Service) CreateAuction(ctx context.Context, req CreateAuctionRequest) (map[string]interface{}, error) {
 	auction := map[string]interface{}{
 		"borrower_address": req.BorrowerAddress,
-		"amount":          req.Amount,
-		"duration":        req.Duration,
+		"amount":           req.Amount,
+		"duration":         req.Duration,
 		"bidding_duration": req.BiddingDuration,
-		"status":          "Open",
+		"status":           "Open",
 	}
 
 	event := map[string]interface{}{
@@ -58,11 +61,11 @@ func (s *Service) CreateAuction(ctx context.Context, req CreateAuctionRequest) (
 
 func (s *Service) PlaceBid(ctx context.Context, req BidRequest) error {
 	event := map[string]interface{}{
-		"type":          "bid_placed",
-		"auction_id":    req.AuctionID,
+		"type":           "bid_placed",
+		"auction_id":     req.AuctionID,
 		"lender_address": req.LenderAddress,
-		"rate_bps":      req.RateBps,
-		"limit":         req.Limit,
+		"rate_bps":       req.RateBps,
+		"limit":          req.Limit,
 	}
 
 	if err := s.queue.Publish("auction.bids", event); err != nil {
@@ -71,6 +74,14 @@ func (s *Service) PlaceBid(ctx context.Context, req BidRequest) error {
 	}
 
 	return nil
+}
+
+func (s *Service) GetAuction(ctx context.Context, id uint64) (*repositories.AuctionModel, error) {
+	return s.repo.GetAuction(ctx, id)
+}
+
+func (s *Service) ListAuctions(ctx context.Context, limit, offset int) ([]*repositories.AuctionModel, error) {
+	return s.repo.ListAuctions(ctx, limit, offset)
 }
 
 func (s *Service) FinalizeAuction(ctx context.Context, auctionID uint64) error {
@@ -86,4 +97,3 @@ func (s *Service) FinalizeAuction(ctx context.Context, auctionID uint64) error {
 
 	return nil
 }
-

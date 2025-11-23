@@ -9,15 +9,15 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 	"go.uber.org/zap"
 
-	"github.com/aqua-x402/backend/internal/handlers"
-	"github.com/aqua-x402/backend/internal/queues"
-	"github.com/aqua-x402/backend/internal/repositories"
-	"github.com/aqua-x402/backend/internal/services/aqua"
-	"github.com/aqua-x402/backend/internal/services/auction"
-	"github.com/aqua-x402/backend/internal/services/faucet"
-	"github.com/aqua-x402/backend/internal/services/rfq"
-	"github.com/aqua-x402/backend/internal/websocket"
-	"github.com/aqua-x402/backend/pkg/evm"
+	"github.com/Pagga-Wallet/aqua402/internal/handlers"
+	"github.com/Pagga-Wallet/aqua402/internal/queues"
+	"github.com/Pagga-Wallet/aqua402/internal/repositories"
+	"github.com/Pagga-Wallet/aqua402/internal/services/aqua"
+	"github.com/Pagga-Wallet/aqua402/internal/services/auction"
+	"github.com/Pagga-Wallet/aqua402/internal/services/faucet"
+	"github.com/Pagga-Wallet/aqua402/internal/services/rfq"
+	"github.com/Pagga-Wallet/aqua402/internal/websocket"
+	"github.com/Pagga-Wallet/aqua402/pkg/evm"
 )
 
 func SetupApp() *echo.Echo {
@@ -40,8 +40,10 @@ func SetupApp() *echo.Echo {
 		// Continue with nil repo - handlers should handle this gracefully
 	}
 	var rfqRepo *repositories.RFQRepository
+	var auctionRepo *repositories.AuctionRepository
 	if repo != nil {
 		rfqRepo = repositories.NewRFQRepository(repo)
+		auctionRepo = repositories.NewAuctionRepository(repo)
 	}
 
 	// Initialize RabbitMQ queue
@@ -56,7 +58,7 @@ func SetupApp() *echo.Echo {
 	}
 
 	rfqService := rfq.NewService(rfqRepo, queue, logger)
-	auctionService := auction.NewService(queue, logger)
+	auctionService := auction.NewService(auctionRepo, queue, logger)
 	aquaService := aqua.NewService(queue, logger)
 
 	// Initialize EVM client for faucet
@@ -147,6 +149,8 @@ func SetupApp() *echo.Echo {
 	api.POST("/rfq/:id/quote", rfqHandler.SubmitQuote)
 
 	api.POST("/auction", auctionHandler.CreateAuction)
+	api.GET("/auction", auctionHandler.ListAuctions)
+	api.GET("/auction/:id", auctionHandler.GetAuction)
 	api.POST("/auction/:id/bid", auctionHandler.PlaceBid)
 	api.POST("/auction/:id/finalize", auctionHandler.FinalizeAuction)
 

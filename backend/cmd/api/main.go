@@ -8,7 +8,7 @@ import (
 	"os/signal"
 	"time"
 
-	_ "github.com/aqua-x402/backend/docs"
+	_ "github.com/Pagga-Wallet/aqua402/docs"
 	"go.uber.org/zap"
 )
 
