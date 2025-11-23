@@ -24,10 +24,10 @@ import (
 // @license.name  MIT
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host      localhost:8080
+// @host      aquax402.pagga.io
 // @BasePath  /api/v1
 
-// @schemes   http https
+// @schemes   https
 
 func main() {
 	// Initialize logger

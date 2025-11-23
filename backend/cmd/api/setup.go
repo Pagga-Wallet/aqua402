@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strings"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
@@ -53,8 +55,42 @@ func SetupApp() *echo.Echo {
 	api := e.Group("/api/v1")
 
 	// Swagger documentation - displayed at /api/v1/
-	api.GET("", echoSwagger.WrapHandler)
-	api.GET("/", echoSwagger.WrapHandler)
+	// echo-swagger serves UI at /swagger/index.html
+	api.GET("/swagger/*", echoSwagger.WrapHandler)
+	api.GET("", func(c echo.Context) error {
+		// Use absolute URL to avoid port issues
+		scheme := "https"
+		if c.Request().Header.Get("X-Forwarded-Proto") == "http" {
+			scheme = "http"
+		}
+		// Use X-Forwarded-Host if available, otherwise use Host
+		host := c.Request().Header.Get("X-Forwarded-Host")
+		if host == "" {
+			host = c.Request().Host
+		}
+		// Remove port from host if present
+		if idx := strings.Index(host, ":"); idx != -1 {
+			host = host[:idx]
+		}
+		return c.Redirect(301, scheme+"://"+host+"/api/v1/swagger/index.html")
+	})
+	api.GET("/", func(c echo.Context) error {
+		// Use absolute URL to avoid port issues
+		scheme := "https"
+		if c.Request().Header.Get("X-Forwarded-Proto") == "http" {
+			scheme = "http"
+		}
+		// Use X-Forwarded-Host if available, otherwise use Host
+		host := c.Request().Header.Get("X-Forwarded-Host")
+		if host == "" {
+			host = c.Request().Host
+		}
+		// Remove port from host if present
+		if idx := strings.Index(host, ":"); idx != -1 {
+			host = host[:idx]
+		}
+		return c.Redirect(301, scheme+"://"+host+"/api/v1/swagger/index.html")
+	})
 
 	api.POST("/rfq", rfqHandler.CreateRFQ)
 	api.GET("/rfq", rfqHandler.ListRFQs)

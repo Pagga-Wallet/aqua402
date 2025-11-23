@@ -688,9 +688,9 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "aquax402.pagga.io",
 	BasePath:         "/api/v1",
-	Schemes:          []string{"http", "https"},
+	Schemes:          []string{"https"},
 	Title:            "Aqua x402 Finance Layer API",
 	Description:      "API for agent financing layer on top of the 402 protocol (x402/A2A) with 1inch Aqua integration",
 	InfoInstanceName: "swagger",
