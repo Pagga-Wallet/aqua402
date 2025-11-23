@@ -1,6 +1,30 @@
 basePath: /api/v1
 definitions:
-  github_com_aqua-x402_backend_internal_repositories.RFQModel:
+  github_com_Pagga-Wallet_aqua402_internal_repositories.AuctionModel:
+    properties:
+      amount:
+        type: string
+      biddingDuration:
+        format: int64
+        type: integer
+      borrowerAddress:
+        type: string
+      createdAt:
+        format: int64
+        type: integer
+      duration:
+        format: int64
+        type: integer
+      endTime:
+        format: int64
+        type: integer
+      id:
+        format: int64
+        type: integer
+      status:
+        type: string
+    type: object
+  github_com_Pagga-Wallet_aqua402_internal_repositories.RFQModel:
     properties:
       amount:
         type: string
@@ -23,7 +47,7 @@ definitions:
       status:
         type: string
     type: object
-  github_com_aqua-x402_backend_internal_services_aqua.ConnectLiquidityRequest:
+  github_com_Pagga-Wallet_aqua402_internal_services_aqua.ConnectLiquidityRequest:
     properties:
       amount:
         type: string
@@ -32,14 +56,14 @@ definitions:
       token_address:
         type: string
     type: object
-  github_com_aqua-x402_backend_internal_services_aqua.WithdrawLiquidityRequest:
+  github_com_Pagga-Wallet_aqua402_internal_services_aqua.WithdrawLiquidityRequest:
     properties:
       amount:
         type: string
       lender_address:
         type: string
     type: object
-  github_com_aqua-x402_backend_internal_services_auction.BidRequest:
+  github_com_Pagga-Wallet_aqua402_internal_services_auction.BidRequest:
     properties:
       auction_id:
         type: integer
@@ -50,7 +74,7 @@ definitions:
       rate_bps:
         type: integer
     type: object
-  github_com_aqua-x402_backend_internal_services_auction.CreateAuctionRequest:
+  github_com_Pagga-Wallet_aqua402_internal_services_auction.CreateAuctionRequest:
     properties:
       amount:
         type: string
@@ -61,7 +85,7 @@ definitions:
       duration:
         type: integer
     type: object
-  github_com_aqua-x402_backend_internal_services_faucet.RequestTokensRequest:
+  github_com_Pagga-Wallet_aqua402_internal_services_faucet.RequestTokensRequest:
     properties:
       address:
         type: string
@@ -69,7 +93,7 @@ definitions:
         description: Amount in ETH (will be converted to Wei)
         type: string
     type: object
-  github_com_aqua-x402_backend_internal_services_rfq.CreateRFQRequest:
+  github_com_Pagga-Wallet_aqua402_internal_services_rfq.CreateRFQRequest:
     properties:
       amount:
         type: string
@@ -82,7 +106,7 @@ definitions:
       flow_description:
         type: string
     type: object
-  github_com_aqua-x402_backend_internal_services_rfq.QuoteRequest:
+  github_com_Pagga-Wallet_aqua402_internal_services_rfq.QuoteRequest:
     properties:
       collateral_required:
         type: string
@@ -121,7 +145,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_aqua-x402_backend_internal_services_aqua.ConnectLiquidityRequest'
+          $ref: '#/definitions/github_com_Pagga-Wallet_aqua402_internal_services_aqua.ConnectLiquidityRequest'
       produces:
       - application/json
       responses:
@@ -185,7 +209,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_aqua-x402_backend_internal_services_aqua.WithdrawLiquidityRequest'
+          $ref: '#/definitions/github_com_Pagga-Wallet_aqua402_internal_services_aqua.WithdrawLiquidityRequest'
       produces:
       - application/json
       responses:
@@ -211,6 +235,39 @@ paths:
       tags:
       - Aqua
   /auction:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of all auctions with pagination
+      parameters:
+      - default: 20
+        description: Record limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_Pagga-Wallet_aqua402_internal_repositories.AuctionModel'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List Auctions
+      tags:
+      - Auction
     post:
       consumes:
       - application/json
@@ -221,7 +278,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_aqua-x402_backend_internal_services_auction.CreateAuctionRequest'
+          $ref: '#/definitions/github_com_Pagga-Wallet_aqua402_internal_services_auction.CreateAuctionRequest'
       produces:
       - application/json
       responses:
@@ -245,6 +302,39 @@ paths:
       summary: Create auction
       tags:
       - Auction
+  /auction/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Returns information about a specific auction
+      parameters:
+      - description: Auction ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_Pagga-Wallet_aqua402_internal_repositories.AuctionModel'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get Auction
+      tags:
+      - Auction
   /auction/{id}/bid:
     post:
       consumes:
@@ -261,7 +351,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_aqua-x402_backend_internal_services_auction.BidRequest'
+          $ref: '#/definitions/github_com_Pagga-Wallet_aqua402_internal_services_auction.BidRequest'
       produces:
       - application/json
       responses:
@@ -326,7 +416,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_aqua-x402_backend_internal_services_faucet.RequestTokensRequest'
+          $ref: '#/definitions/github_com_Pagga-Wallet_aqua402_internal_services_faucet.RequestTokensRequest'
       produces:
       - application/json
       responses:
@@ -374,7 +464,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_aqua-x402_backend_internal_repositories.RFQModel'
+              $ref: '#/definitions/github_com_Pagga-Wallet_aqua402_internal_repositories.RFQModel'
             type: array
         "500":
           description: Internal Server Error
@@ -395,14 +485,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_aqua-x402_backend_internal_services_rfq.CreateRFQRequest'
+          $ref: '#/definitions/github_com_Pagga-Wallet_aqua402_internal_services_rfq.CreateRFQRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_aqua-x402_backend_internal_repositories.RFQModel'
+            $ref: '#/definitions/github_com_Pagga-Wallet_aqua402_internal_repositories.RFQModel'
         "400":
           description: Bad Request
           schema:
@@ -435,7 +525,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_aqua-x402_backend_internal_repositories.RFQModel'
+            $ref: '#/definitions/github_com_Pagga-Wallet_aqua402_internal_repositories.RFQModel'
         "400":
           description: Bad Request
           schema:
@@ -467,7 +557,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_aqua-x402_backend_internal_services_rfq.QuoteRequest'
+          $ref: '#/definitions/github_com_Pagga-Wallet_aqua402_internal_services_rfq.QuoteRequest'
       produces:
       - application/json
       responses:

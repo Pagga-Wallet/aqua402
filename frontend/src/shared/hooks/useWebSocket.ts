@@ -11,6 +11,10 @@ export function useWebSocket(url: string, topics: string[] = []) {
   const wsRef = useRef<WebSocket | null>(null)
 
   useEffect(() => {
+    // Don't connect if URL is empty
+    if (!url) {
+      return
+    }
     const ws = new WebSocket(url)
     wsRef.current = ws
 

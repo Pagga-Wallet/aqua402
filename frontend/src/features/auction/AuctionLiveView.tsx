@@ -14,8 +14,11 @@ export const AuctionLiveView = observer(() => {
   // Build WebSocket URL from VITE_API_URL
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080'
   const wsProtocol = apiUrl.startsWith('https://') ? 'wss://' : 'ws://'
-  const wsHost = apiUrl.replace(/^https?:\/\//, '').replace(/\/api\/v1$/, '')
-  const wsUrl = auctionId ? `${wsProtocol}${wsHost}/ws/auction/${auctionId}` : ''
+  // Extract host from API URL (remove protocol)
+  let wsHost = apiUrl.replace(/^https?:\/\//, '') // Remove protocol
+  wsHost = wsHost.split('/')[0] // Get only hostname (remove any path)
+  // WebSocket is now in /api/v1/ws/auction/:id
+  const wsUrl = auctionId ? `${wsProtocol}${wsHost}/api/v1/ws/auction/${auctionId}` : ''
   const { messages, connected } = useWebSocket(wsUrl, auctionId ? [`auction:${auctionId}`] : [])
 
   useEffect(() => {
@@ -24,6 +27,11 @@ export const AuctionLiveView = observer(() => {
       auctionStore.setError(null)
       try {
         const auctions = await apiClient.listAuctions(100, 0) as any[]
+        // Handle null or undefined response
+        if (!auctions || !Array.isArray(auctions)) {
+          auctionStore.setAuctions([])
+          return
+        }
         // Transform backend data to frontend format
         const transformedAuctions: Auction[] = auctions.map((a: any) => ({
           id: a.ID?.toString() || a.id?.toString() || '',

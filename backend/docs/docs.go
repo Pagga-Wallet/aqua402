@@ -44,7 +44,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_services_aqua.ConnectLiquidityRequest"
+                            "$ref": "#/definitions/github_com_Pagga-Wallet_aqua402_internal_services_aqua.ConnectLiquidityRequest"
                         }
                     }
                 ],
@@ -141,7 +141,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_services_aqua.WithdrawLiquidityRequest"
+                            "$ref": "#/definitions/github_com_Pagga-Wallet_aqua402_internal_services_aqua.WithdrawLiquidityRequest"
                         }
                     }
                 ],
@@ -177,6 +177,55 @@ const docTemplate = `{
             }
         },
         "/auction": {
+            "get": {
+                "description": "Returns a list of all auctions with pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auction"
+                ],
+                "summary": "List Auctions",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Record limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Offset",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_Pagga-Wallet_aqua402_internal_repositories.AuctionModel"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Creates a new auction for financing",
                 "consumes": [
@@ -196,7 +245,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_services_auction.CreateAuctionRequest"
+                            "$ref": "#/definitions/github_com_Pagga-Wallet_aqua402_internal_services_auction.CreateAuctionRequest"
                         }
                     }
                 ],
@@ -219,6 +268,56 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auction/{id}": {
+            "get": {
+                "description": "Returns information about a specific auction",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auction"
+                ],
+                "summary": "Get Auction",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Auction ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Pagga-Wallet_aqua402_internal_repositories.AuctionModel"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -256,7 +355,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_services_auction.BidRequest"
+                            "$ref": "#/definitions/github_com_Pagga-Wallet_aqua402_internal_services_auction.BidRequest"
                         }
                     }
                 ],
@@ -355,7 +454,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_services_faucet.RequestTokensRequest"
+                            "$ref": "#/definitions/github_com_Pagga-Wallet_aqua402_internal_services_faucet.RequestTokensRequest"
                         }
                     }
                 ],
@@ -425,7 +524,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_aqua-x402_backend_internal_repositories.RFQModel"
+                                "$ref": "#/definitions/github_com_Pagga-Wallet_aqua402_internal_repositories.RFQModel"
                             }
                         }
                     },
@@ -459,7 +558,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_services_rfq.CreateRFQRequest"
+                            "$ref": "#/definitions/github_com_Pagga-Wallet_aqua402_internal_services_rfq.CreateRFQRequest"
                         }
                     }
                 ],
@@ -467,7 +566,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_repositories.RFQModel"
+                            "$ref": "#/definitions/github_com_Pagga-Wallet_aqua402_internal_repositories.RFQModel"
                         }
                     },
                     "400": {
@@ -517,7 +616,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_repositories.RFQModel"
+                            "$ref": "#/definitions/github_com_Pagga-Wallet_aqua402_internal_repositories.RFQModel"
                         }
                     },
                     "400": {
@@ -568,7 +667,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_services_rfq.QuoteRequest"
+                            "$ref": "#/definitions/github_com_Pagga-Wallet_aqua402_internal_services_rfq.QuoteRequest"
                         }
                     }
                 ],
@@ -605,7 +704,41 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_aqua-x402_backend_internal_repositories.RFQModel": {
+        "github_com_Pagga-Wallet_aqua402_internal_repositories.AuctionModel": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "string"
+                },
+                "biddingDuration": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "borrowerAddress": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "duration": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "endTime": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_Pagga-Wallet_aqua402_internal_repositories.RFQModel": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -638,7 +771,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_aqua-x402_backend_internal_services_aqua.ConnectLiquidityRequest": {
+        "github_com_Pagga-Wallet_aqua402_internal_services_aqua.ConnectLiquidityRequest": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -652,7 +785,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_aqua-x402_backend_internal_services_aqua.WithdrawLiquidityRequest": {
+        "github_com_Pagga-Wallet_aqua402_internal_services_aqua.WithdrawLiquidityRequest": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -663,7 +796,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_aqua-x402_backend_internal_services_auction.BidRequest": {
+        "github_com_Pagga-Wallet_aqua402_internal_services_auction.BidRequest": {
             "type": "object",
             "properties": {
                 "auction_id": {
@@ -680,7 +813,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_aqua-x402_backend_internal_services_auction.CreateAuctionRequest": {
+        "github_com_Pagga-Wallet_aqua402_internal_services_auction.CreateAuctionRequest": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -697,7 +830,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_aqua-x402_backend_internal_services_faucet.RequestTokensRequest": {
+        "github_com_Pagga-Wallet_aqua402_internal_services_faucet.RequestTokensRequest": {
             "type": "object",
             "properties": {
                 "address": {
@@ -709,7 +842,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_aqua-x402_backend_internal_services_rfq.CreateRFQRequest": {
+        "github_com_Pagga-Wallet_aqua402_internal_services_rfq.CreateRFQRequest": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -729,7 +862,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_aqua-x402_backend_internal_services_rfq.QuoteRequest": {
+        "github_com_Pagga-Wallet_aqua402_internal_services_rfq.QuoteRequest": {
             "type": "object",
             "properties": {
                 "collateral_required": {

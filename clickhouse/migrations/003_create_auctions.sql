@@ -1,3 +1,5 @@
+-- +goose Up
+-- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS auctions
 (
     id UInt64,
@@ -11,4 +13,10 @@ CREATE TABLE IF NOT EXISTS auctions
 ENGINE = MergeTree()
 ORDER BY (id, created_at)
 SETTINGS index_granularity = 8192;
+-- +goose StatementEnd
+
+-- +goose Down
+-- +goose StatementBegin
+DROP TABLE IF EXISTS auctions;
+-- +goose StatementEnd
 

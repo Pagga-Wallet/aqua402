@@ -15,6 +15,11 @@ export const LenderDashboard = observer(() => {
       rfqStore.setError(null)
       try {
         const rfqs = await apiClient.listRFQs(100, 0) as any[]
+        // Handle null or undefined response
+        if (!rfqs || !Array.isArray(rfqs)) {
+          rfqStore.setRFQs([])
+          return
+        }
         // Transform backend data to frontend format
         const transformedRFQs: RFQ[] = rfqs.map((r: any) => ({
           id: r.ID?.toString() || r.id?.toString() || '',

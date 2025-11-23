@@ -163,10 +163,10 @@ func SetupApp() *echo.Echo {
 		api.POST("/faucet", faucetHandler.RequestTokens)
 	}
 
-	// WebSocket routes
-	e.GET("/ws", wsHandler.HandleWebSocket)
-	e.GET("/ws/rfq/:id", wsHandler.HandleRFQWebSocket)
-	e.GET("/ws/auction/:id", wsHandler.HandleAuctionWebSocket)
+	// WebSocket routes in API group
+	api.GET("/ws", wsHandler.HandleWebSocket)
+	api.GET("/ws/rfq/:id", wsHandler.HandleRFQWebSocket)
+	api.GET("/ws/auction/:id", wsHandler.HandleAuctionWebSocket)
 
 	return e
 }

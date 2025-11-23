@@ -44,8 +44,8 @@ func NewRFQRepository(repo *Repository) *RFQRepository {
 
 // SaveRFQ saves an RFQ to the database
 func (r *RFQRepository) SaveRFQ(ctx context.Context, rfq *RFQModel) error {
-	query := `INSERT INTO rfqs (borrower_address, amount, duration, collateral_type, flow_description, status, created_at) 
-	          VALUES (?, ?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO pagga_data.rfqs (borrower_address, amount, duration, collateral_type, flow_description, status, created_at) 
+	          VALUES (?, ?, ?, ?, ?, ?, toDateTime(?))`
 	_, err := r.db.ExecContext(ctx, query,
 		rfq.BorrowerAddress, rfq.Amount, rfq.Duration, rfq.CollateralType,
 		rfq.FlowDescription, rfq.Status, rfq.CreatedAt)
@@ -55,8 +55,8 @@ func (r *RFQRepository) SaveRFQ(ctx context.Context, rfq *RFQModel) error {
 // GetRFQ retrieves an RFQ by ID
 func (r *RFQRepository) GetRFQ(ctx context.Context, id uint64) (*RFQModel, error) {
 	rfq := new(RFQModel)
-	query := `SELECT id, borrower_address, amount, duration, collateral_type, flow_description, status, created_at 
-	          FROM rfqs WHERE id = ?`
+	query := `SELECT id, borrower_address, amount, duration, collateral_type, flow_description, status, toUnixTimestamp(created_at) as created_at 
+	          FROM pagga_data.rfqs WHERE id = ?`
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&rfq.ID, &rfq.BorrowerAddress, &rfq.Amount, &rfq.Duration,
 		&rfq.CollateralType, &rfq.FlowDescription, &rfq.Status, &rfq.CreatedAt)
@@ -65,8 +65,8 @@ func (r *RFQRepository) GetRFQ(ctx context.Context, id uint64) (*RFQModel, error
 
 // ListRFQs retrieves RFQs with pagination
 func (r *RFQRepository) ListRFQs(ctx context.Context, limit, offset int) ([]*RFQModel, error) {
-	query := `SELECT id, borrower_address, amount, duration, collateral_type, flow_description, status, created_at 
-	          FROM rfqs ORDER BY created_at DESC LIMIT ? OFFSET ?`
+	query := `SELECT id, borrower_address, amount, duration, collateral_type, flow_description, status, toUnixTimestamp(created_at) as created_at 
+	          FROM pagga_data.rfqs ORDER BY created_at DESC LIMIT ? OFFSET ?`
 	rows, err := r.db.QueryContext(ctx, query, limit, offset)
 	if err != nil {
 		return nil, err
@@ -111,7 +111,7 @@ func NewAuctionRepository(repo *Repository) *AuctionRepository {
 
 // SaveAuction saves an Auction to the database
 func (r *AuctionRepository) SaveAuction(ctx context.Context, auction *AuctionModel) error {
-	query := `INSERT INTO auctions (borrower_address, amount, duration, end_time, status, created_at) 
+	query := `INSERT INTO pagga_data.auctions (borrower_address, amount, duration, end_time, status, created_at) 
 	          VALUES (?, ?, ?, ?, ?, ?)`
 	_, err := r.db.ExecContext(ctx, query,
 		auction.BorrowerAddress, auction.Amount, auction.Duration,
@@ -123,7 +123,7 @@ func (r *AuctionRepository) SaveAuction(ctx context.Context, auction *AuctionMod
 func (r *AuctionRepository) GetAuction(ctx context.Context, id uint64) (*AuctionModel, error) {
 	auction := new(AuctionModel)
 	query := `SELECT id, borrower_address, amount, duration, end_time, status, created_at 
-	          FROM auctions WHERE id = ?`
+	          FROM pagga_data.auctions WHERE id = ?`
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&auction.ID, &auction.BorrowerAddress, &auction.Amount, &auction.Duration,
 		&auction.EndTime, &auction.Status, &auction.CreatedAt)
@@ -133,7 +133,7 @@ func (r *AuctionRepository) GetAuction(ctx context.Context, id uint64) (*Auction
 // ListAuctions retrieves Auctions with pagination
 func (r *AuctionRepository) ListAuctions(ctx context.Context, limit, offset int) ([]*AuctionModel, error) {
 	query := `SELECT id, borrower_address, amount, duration, end_time, status, created_at 
-	          FROM auctions ORDER BY created_at DESC LIMIT ? OFFSET ?`
+	          FROM pagga_data.auctions ORDER BY created_at DESC LIMIT ? OFFSET ?`
 	rows, err := r.db.QueryContext(ctx, query, limit, offset)
 	if err != nil {
 		return nil, err

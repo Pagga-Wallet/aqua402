@@ -44,18 +44,18 @@ export class APIClient {
     collateral_type: number
     flow_description: string
   }) {
-    return this.request('/api/v1/rfq', {
+    return this.request('/rfq', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   }
 
   async getRFQ(id: string) {
-    return this.request(`/api/v1/rfq/${id}`)
+    return this.request(`/rfq/${id}`)
   }
 
   async listRFQs(limit: number = 20, offset: number = 0) {
-    return this.request(`/api/v1/rfq?limit=${limit}&offset=${offset}`)
+    return this.request(`/rfq?limit=${limit}&offset=${offset}`)
   }
 
   async submitQuote(rfqId: string, data: {
@@ -64,7 +64,7 @@ export class APIClient {
     limit: string
     collateral_required: string
   }) {
-    return this.request(`/api/v1/rfq/${rfqId}/quote`, {
+    return this.request(`/rfq/${rfqId}/quote`, {
       method: 'POST',
       body: JSON.stringify(data),
     })
@@ -77,7 +77,7 @@ export class APIClient {
     duration: number
     bidding_duration: number
   }) {
-    return this.request('/api/v1/auction', {
+    return this.request('/auction', {
       method: 'POST',
       body: JSON.stringify(data),
     })
@@ -88,18 +88,18 @@ export class APIClient {
     rate_bps: number
     limit: string
   }) {
-    return this.request(`/api/v1/auction/${auctionId}/bid`, {
+    return this.request(`/auction/${auctionId}/bid`, {
       method: 'POST',
       body: JSON.stringify(data),
     })
   }
 
   async listAuctions(limit: number = 20, offset: number = 0) {
-    return this.request(`/api/v1/auction?limit=${limit}&offset=${offset}`)
+    return this.request(`/auction?limit=${limit}&offset=${offset}`)
   }
 
   async getAuction(id: string) {
-    return this.request(`/api/v1/auction/${id}`)
+    return this.request(`/auction/${id}`)
   }
 
   // Aqua endpoints
@@ -108,14 +108,14 @@ export class APIClient {
     amount: string
     token_address: string
   }) {
-    return this.request('/api/v1/aqua/liquidity', {
+    return this.request('/aqua/liquidity', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   }
 
   async getAvailableLiquidity(address: string) {
-    return this.request(`/api/v1/aqua/liquidity/${address}`)
+    return this.request(`/aqua/liquidity/${address}`)
   }
 }
 
