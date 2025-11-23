@@ -79,7 +79,7 @@ start_clickhouse_cluster() {
 
 # Start main application services
 start_main_services() {
-    echo -e "${BLUE}Starting main application services (RabbitMQ, Backend, Frontend)...${NC}"
+    echo -e "${BLUE}Starting main application services (RabbitMQ, Backend, Frontend, Worker)...${NC}"
     cd "$PROJECT_ROOT"
     
     # Check if .env file exists
@@ -89,6 +89,7 @@ start_main_services() {
     fi
     
     # Start main services (excluding hardhat-node, it will be started separately)
+    # Note: backend-worker will be started after contracts are deployed (in deploy_contracts)
     docker-compose up -d rabbitmq backend frontend
     
     # Wait for services to be ready
@@ -171,7 +172,7 @@ deploy_contracts() {
     echo "  Aqua: $AQUA_ADDRESS"
     echo "  AgentFinance: $AGENT_FINANCE_ADDRESS"
     
-    # Save addresses to .env
+    # Save addresses to .env.demo
     cd "$PROJECT_ROOT"
     cat > .env.demo << EOF
 VITE_RFQ_ADDRESS=$RFQ_ADDRESS
@@ -179,9 +180,54 @@ VITE_AUCTION_ADDRESS=$AUCTION_ADDRESS
 VITE_AQUA_ADDRESS=$AQUA_ADDRESS
 VITE_AGENT_FINANCE_ADDRESS=$AGENT_FINANCE_ADDRESS
 VITE_API_URL=http://localhost:8080
+RFQ_CONTRACT_ADDRESS=$RFQ_ADDRESS
+AUCTION_CONTRACT_ADDRESS=$AUCTION_ADDRESS
 EOF
     
     echo -e "${GREEN}Contract addresses saved to .env.demo${NC}"
+}
+
+# Rebuild frontend with new contract addresses
+rebuild_frontend() {
+    echo -e "${BLUE}Rebuilding frontend with new contract addresses...${NC}"
+    cd "$PROJECT_ROOT"
+    
+    # Load variables from .env.demo
+    if [ -f .env.demo ]; then
+        # Source .env.demo to export variables
+        set -a
+        source .env.demo
+        set +a
+    fi
+    
+    # Rebuild frontend container with build args
+    docker-compose build --build-arg VITE_RFQ_ADDRESS="${VITE_RFQ_ADDRESS:-}" \
+                         --build-arg VITE_AUCTION_ADDRESS="${VITE_AUCTION_ADDRESS:-}" \
+                         --build-arg VITE_AQUA_ADDRESS="${VITE_AQUA_ADDRESS:-}" \
+                         --build-arg VITE_AGENT_FINANCE_ADDRESS="${VITE_AGENT_FINANCE_ADDRESS:-}" \
+                         frontend
+    
+    # Restart frontend container
+    docker-compose up -d frontend
+    
+    echo -e "${GREEN}Frontend rebuilt and restarted${NC}"
+}
+
+# Restart worker with new contract addresses
+restart_worker() {
+    echo -e "${BLUE}Restarting backend-worker with new contract addresses...${NC}"
+    cd "$PROJECT_ROOT"
+    
+    # Stop worker if running
+    docker-compose stop backend-worker 2>/dev/null || true
+    
+    # Start worker (it will read addresses from .env.demo file)
+    docker-compose up -d backend-worker
+    
+    # Wait a bit for worker to start
+    sleep 3
+    
+    echo -e "${GREEN}Backend-worker restarted${NC}"
 }
 
 # Run contract tests
@@ -270,7 +316,13 @@ main() {
     echo -e "${BLUE}Step 5: Deploying contracts...${NC}"
     deploy_contracts
     
-    echo -e "${BLUE}Step 6: Running backend tests...${NC}"
+    echo -e "${BLUE}Step 6: Rebuilding frontend with contract addresses...${NC}"
+    rebuild_frontend
+    
+    echo -e "${BLUE}Step 7: Starting backend-worker...${NC}"
+    restart_worker
+    
+    echo -e "${BLUE}Step 8: Running backend tests...${NC}"
     run_backend_tests
     
     echo ""

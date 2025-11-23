@@ -12,6 +12,7 @@ import (
 	"github.com/aqua-x402/backend/internal/queues"
 	"github.com/aqua-x402/backend/internal/repositories"
 	eventmonitor "github.com/aqua-x402/backend/internal/services/events"
+	"github.com/aqua-x402/backend/pkg/config"
 	"github.com/aqua-x402/backend/pkg/evm"
 	"go.uber.org/zap"
 )
@@ -60,9 +61,27 @@ func main() {
 		logger.Fatal("Failed to initialize EVM client", zap.Error(err))
 	}
 
-	// Get contract addresses from environment
+	// Try to load contract addresses from .env.demo file if environment variables are not set
+	// This allows worker to read addresses from the file mounted in docker-compose
+	envFilePath := "/app/.env.demo"
+	if loaded, err := config.LoadEnvFileIfExists(envFilePath); err != nil {
+		logger.Warn("Failed to load .env.demo file", zap.String("path", envFilePath), zap.Error(err))
+	} else if loaded {
+		logger.Info("Loaded contract addresses from .env.demo file", zap.String("path", envFilePath))
+	}
+
+	// Get contract addresses from environment (may be set via env vars or loaded from .env.demo)
 	rfqAddress := os.Getenv("RFQ_CONTRACT_ADDRESS")
+	if rfqAddress == "" {
+		// Try VITE_RFQ_ADDRESS as fallback (from .env.demo)
+		rfqAddress = os.Getenv("VITE_RFQ_ADDRESS")
+	}
+
 	auctionAddress := os.Getenv("AUCTION_CONTRACT_ADDRESS")
+	if auctionAddress == "" {
+		// Try VITE_AUCTION_ADDRESS as fallback (from .env.demo)
+		auctionAddress = os.Getenv("VITE_AUCTION_ADDRESS")
+	}
 
 	if rfqAddress == "" || auctionAddress == "" {
 		logger.Warn("Contract addresses not set, event monitoring disabled",

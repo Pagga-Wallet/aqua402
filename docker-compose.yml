@@ -48,6 +48,9 @@ services:
       - aqua-network
 
   # Backend Worker (event monitor and queue processor)
+  # Monitors blockchain events from RFQ and Auction contracts
+  # Reads contract addresses from .env.demo file (mounted as volume)
+  # Worker will automatically load addresses from /app/.env.demo if environment variables are not set
   backend-worker:
     build:
       context: ./backend
@@ -58,10 +61,13 @@ services:
       CLICKHOUSE_DSN: clickhouse://admin:CH_S3cur3_2025_Admin_PAGGA_987@host.docker.internal:9000/pagga_data
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-admin}:${RABBITMQ_PASSWORD:-changeme}@rabbitmq:5672/
       EVM_RPC_URL: ${EVM_RPC_URL:-http://hardhat-node:8545}
+      # Contract addresses can be set via environment variables or loaded from .env.demo file
+      # Worker will read from /app/.env.demo if these are not set
       RFQ_CONTRACT_ADDRESS: ${RFQ_CONTRACT_ADDRESS:-${VITE_RFQ_ADDRESS:-}}
       AUCTION_CONTRACT_ADDRESS: ${AUCTION_CONTRACT_ADDRESS:-${VITE_AUCTION_ADDRESS:-}}
     volumes:
-      # Mount .env.demo to read contract addresses
+      # Mount .env.demo to read contract addresses at runtime
+      # Worker reads this file if RFQ_CONTRACT_ADDRESS and AUCTION_CONTRACT_ADDRESS are not set
       - ./.env.demo:/app/.env.demo:ro
     depends_on:
       - rabbitmq
@@ -72,6 +78,10 @@ services:
       - aqua-network
 
   # Frontend
+  # Note: VITE_* variables are embedded during build time
+  # Frontend must be rebuilt after .env.demo is created with contract addresses
+  # Use rebuild_frontend() function in run-demo.sh after deploying contracts
+  # Build args are passed via docker-compose build command in rebuild_frontend()
   frontend:
     build:
       context: ./frontend
@@ -84,7 +94,7 @@ services:
       VITE_WALLETCONNECT_PROJECT_ID: ${WALLETCONNECT_PROJECT_ID:-}
       VITE_HARDHAT_RPC_URL: https://aquax402.pagga.io/api/hh
     volumes:
-      # Mount .env.demo to share contract addresses with hardhat-node
+      # Mount .env.demo for reference (but addresses must be set during build)
       - ./.env.demo:/app/.env.demo:ro
     networks:
       - aqua-network
