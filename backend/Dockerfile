@@ -17,6 +17,9 @@ RUN swag init -g cmd/api/main.go -o docs --parseDependency --parseInternal
 # Build the application
 RUN go build -o api ./cmd/api
 
+# Build the worker
+RUN go build -o worker ./cmd/worker
+
 FROM alpine:latest
 
 RUN apk --no-cache add ca-certificates
@@ -24,6 +27,7 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 
 COPY --from=builder /app/api .
+COPY --from=builder /app/worker .
 
 # Copy Swagger docs from builder stage
 # These will be synced to host via volume mount

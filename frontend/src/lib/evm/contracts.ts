@@ -27,10 +27,10 @@ export function getAgentFinanceContract(address: string, signer: ethers.Signer) 
 
 // Contract addresses (will be set after deployment)
 export const CONTRACT_ADDRESSES: ContractAddresses = {
-  rfq: process.env.VITE_RFQ_ADDRESS || '',
-  auction: process.env.VITE_AUCTION_ADDRESS || '',
-  aqua: process.env.VITE_AQUA_ADDRESS || '',
-  agentFinance: process.env.VITE_AGENT_FINANCE_ADDRESS || '',
-  x402Credit: process.env.VITE_X402_CREDIT_ADDRESS || '',
+  rfq: import.meta.env.VITE_RFQ_ADDRESS || '',
+  auction: import.meta.env.VITE_AUCTION_ADDRESS || '',
+  aqua: import.meta.env.VITE_AQUA_ADDRESS || '',
+  agentFinance: import.meta.env.VITE_AGENT_FINANCE_ADDRESS || '',
+  x402Credit: import.meta.env.VITE_X402_CREDIT_ADDRESS || '',
 }
 

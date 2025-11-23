@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useAccount, useWriteContract } from 'wagmi'
 import { CONTRACT_ADDRESSES } from '../../lib/evm/contracts'
 import { AUCTION_ABI } from '../../lib/evm/abis'
-import { parseEther } from 'ethers'
+import { parseEther } from 'viem'
 
 interface BidFormProps {
   auctionId: string

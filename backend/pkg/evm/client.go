@@ -67,3 +67,28 @@ func (c *Client) GetAuth(ctx context.Context, privateKey string, chainID *big.In
 	return nil, nil
 }
 
+// FilterLogs executes a filter query
+func (c *Client) FilterLogs(ctx context.Context, query ethereum.FilterQuery) ([]types.Log, error) {
+	return c.client.FilterLogs(ctx, query)
+}
+
+// SubscribeFilterLogs creates a subscription that will receive logs matching the given query
+func (c *Client) SubscribeFilterLogs(ctx context.Context, query ethereum.FilterQuery, ch chan<- types.Log) (ethereum.Subscription, error) {
+	return c.client.SubscribeFilterLogs(ctx, query, ch)
+}
+
+// HeaderByNumber returns a block header from the current canonical chain
+func (c *Client) HeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error) {
+	return c.client.HeaderByNumber(ctx, number)
+}
+
+// BlockNumber returns the most recent block number
+func (c *Client) BlockNumber(ctx context.Context) (uint64, error) {
+	return c.client.BlockNumber(ctx)
+}
+
+// Client returns the underlying ethclient.Client
+func (c *Client) Client() *ethclient.Client {
+	return c.client
+}
+

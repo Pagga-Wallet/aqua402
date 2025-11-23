@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { useAccount, useWriteContract } from 'wagmi'
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { CONTRACT_ADDRESSES } from '../../lib/evm/contracts'
 import { AUCTION_ABI } from '../../lib/evm/abis'
-import { parseEther } from 'ethers'
+import { parseEther } from 'viem'
 
 export const CreateAuctionForm = () => {
   const { address } = useAccount()
@@ -11,16 +11,33 @@ export const CreateAuctionForm = () => {
   const [amount, setAmount] = useState('')
   const [duration, setDuration] = useState('')
   const [biddingDuration, setBiddingDuration] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined)
+
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+    hash: txHash,
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!address || !writeContract) return
+    if (!address || !writeContract) {
+      setError('Please connect your wallet first')
+      return
+    }
+
+    if (!CONTRACT_ADDRESSES.auction) {
+      setError('Auction contract address not configured')
+      return
+    }
+
+    setError(null)
+    setTxHash(undefined)
 
     try {
       const durationSeconds = parseInt(duration) * 24 * 60 * 60
       const biddingDurationSeconds = parseInt(biddingDuration) * 60 * 60
       
-      await writeContract({
+      const hash = await writeContract({
         address: CONTRACT_ADDRESSES.auction as `0x${string}`,
         abi: AUCTION_ABI,
         functionName: 'createAuction',
@@ -30,8 +47,20 @@ export const CreateAuctionForm = () => {
           BigInt(biddingDurationSeconds)
         ],
       })
-    } catch (error) {
-      console.error('Failed to create auction:', error)
+
+      setTxHash(hash)
+      console.log('Auction transaction sent:', hash)
+      
+      // Reset form after successful transaction
+      if (isConfirmed) {
+        setAmount('')
+        setDuration('')
+        setBiddingDuration('')
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create auction'
+      console.error('Failed to create auction:', err)
+      setError(errorMessage)
     }
   }
 
@@ -66,9 +95,23 @@ export const CreateAuctionForm = () => {
           required
         />
       </div>
-      <button type="submit" disabled={isPending || !address}>
-        {isPending ? 'Creating...' : 'Create Auction'}
+      <button type="submit" disabled={isPending || isConfirming || !address}>
+        {isPending ? 'Creating...' : isConfirming ? 'Waiting for confirmation...' : 'Create Auction'}
       </button>
+      {txHash && (
+        <div style={{ marginTop: '8px', fontSize: '12px' }}>
+          Transaction Hash: <a href={`https://etherscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer">{txHash.slice(0, 6)}...{txHash.slice(-4)}</a>
+        </div>
+      )}
+      {isConfirming && (
+        <div style={{ color: 'orange', marginTop: '8px' }}>Waiting for confirmation...</div>
+      )}
+      {isConfirmed && (
+        <div style={{ color: 'green', marginTop: '8px' }}>✓ Transaction confirmed! Event will be processed by backend.</div>
+      )}
+      {error && (
+        <div style={{ color: 'red', marginTop: '8px' }}>{error}</div>
+      )}
     </form>
   )
 }

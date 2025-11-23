@@ -47,6 +47,30 @@ services:
     networks:
       - aqua-network
 
+  # Backend Worker (event monitor and queue processor)
+  backend-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: aqua-x402-backend-worker
+    command: ["./worker"]
+    environment:
+      CLICKHOUSE_DSN: clickhouse://admin:CH_S3cur3_2025_Admin_PAGGA_987@host.docker.internal:9000/pagga_data
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-admin}:${RABBITMQ_PASSWORD:-changeme}@rabbitmq:5672/
+      EVM_RPC_URL: ${EVM_RPC_URL:-http://hardhat-node:8545}
+      RFQ_CONTRACT_ADDRESS: ${RFQ_CONTRACT_ADDRESS:-${VITE_RFQ_ADDRESS:-}}
+      AUCTION_CONTRACT_ADDRESS: ${AUCTION_CONTRACT_ADDRESS:-${VITE_AUCTION_ADDRESS:-}}
+    volumes:
+      # Mount .env.demo to read contract addresses
+      - ./.env.demo:/app/.env.demo:ro
+    depends_on:
+      - rabbitmq
+      - hardhat-node
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - aqua-network
+
   # Frontend
   frontend:
     build:
@@ -59,6 +83,9 @@ services:
       VITE_API_URL: https://aquax402.pagga.io/api/v1
       VITE_WALLETCONNECT_PROJECT_ID: ${WALLETCONNECT_PROJECT_ID:-}
       VITE_HARDHAT_RPC_URL: https://aquax402.pagga.io/api/hh
+    volumes:
+      # Mount .env.demo to share contract addresses with hardhat-node
+      - ./.env.demo:/app/.env.demo:ro
     networks:
       - aqua-network
 
@@ -73,6 +100,8 @@ services:
     volumes:
       - ./contracts:/app
       - /app/node_modules
+      # Mount .env.demo to share contract addresses with frontend
+      - ./.env.demo:/app/.env.demo:ro
     networks:
       - aqua-network
     healthcheck:
