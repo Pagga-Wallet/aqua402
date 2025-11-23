@@ -56,9 +56,32 @@ func main() {
 	if evmRPCURL == "" {
 		evmRPCURL = "http://hardhat-node:8545"
 	}
-	evmClient, err := evm.NewClient(evmRPCURL)
-	if err != nil {
-		logger.Fatal("Failed to initialize EVM client", zap.Error(err))
+
+	// Wait for hardhat-node to be ready with retries
+	logger.Info("Waiting for hardhat-node to be ready", zap.String("rpc_url", evmRPCURL))
+	var evmClient *evm.Client
+	maxRetries := 30
+	retryDelay := 2 * time.Second
+	for i := 0; i < maxRetries; i++ {
+		var err error
+		evmClient, err = evm.NewClient(evmRPCURL)
+		if err == nil {
+			// Test connection by getting block number
+			_, err = evmClient.BlockNumber(context.Background())
+			if err == nil {
+				logger.Info("Hardhat-node is ready")
+				break
+			}
+		}
+		if i < maxRetries-1 {
+			logger.Warn("Hardhat-node not ready yet, retrying...",
+				zap.Int("attempt", i+1),
+				zap.Int("max_retries", maxRetries),
+				zap.Error(err))
+			time.Sleep(retryDelay)
+		} else {
+			logger.Fatal("Failed to connect to hardhat-node after retries", zap.Error(err))
+		}
 	}
 
 	// Try to load contract addresses from .env.demo file if environment variables are not set

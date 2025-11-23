@@ -70,8 +70,10 @@ services:
       # Worker reads this file if RFQ_CONTRACT_ADDRESS and AUCTION_CONTRACT_ADDRESS are not set
       - ./.env.demo:/app/.env.demo:ro
     depends_on:
-      - rabbitmq
-      - hardhat-node
+      rabbitmq:
+        condition: service_started
+      hardhat-node:
+        condition: service_healthy
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
