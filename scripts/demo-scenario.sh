@@ -12,13 +12,13 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-API_URL="http://localhost:8080"
+API_URL="https://aquax402.pagga.io/api/v1"
 
 # Wait for API to be ready
 wait_for_api() {
     echo -e "${YELLOW}Waiting for API to be ready...${NC}"
     for i in {1..30}; do
-        if curl -s "$API_URL/health" > /dev/null 2>&1; then
+        if curl -k -s "$API_URL/health" > /dev/null 2>&1; then
             echo -e "${GREEN}API is ready!${NC}"
             return 0
         fi
@@ -33,7 +33,7 @@ demo_rfq() {
     
     # 1. Create RFQ
     echo "1. Creating RFQ..."
-    RFQ_RESPONSE=$(curl -s -X POST "$API_URL/api/v1/rfq" \
+    RFQ_RESPONSE=$(curl -k -s -X POST "$API_URL/rfq" \
         -H "Content-Type: application/json" \
         -d '{
             "borrower_address": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
@@ -47,7 +47,7 @@ demo_rfq() {
     
     # 2. Submit Quote
     echo "2. Submitting quote..."
-    QUOTE_RESPONSE=$(curl -s -X POST "$API_URL/api/v1/rfq/0/quote" \
+    QUOTE_RESPONSE=$(curl -k -s -X POST "$API_URL/rfq/0/quote" \
         -H "Content-Type: application/json" \
         -d '{
             "rfq_id": 0,
@@ -61,7 +61,7 @@ demo_rfq() {
     
     # 3. Get RFQ
     echo "3. Getting RFQ details..."
-    RFQ_DETAILS=$(curl -s "$API_URL/api/v1/rfq/0")
+    RFQ_DETAILS=$(curl -k -s "$API_URL/rfq/0")
     echo "RFQ Details: $RFQ_DETAILS"
     
     echo -e "${GREEN}RFQ Flow completed!${NC}"
@@ -74,7 +74,7 @@ demo_auction() {
     
     # 1. Create Auction
     echo "1. Creating auction..."
-    AUCTION_RESPONSE=$(curl -s -X POST "$API_URL/api/v1/auction" \
+    AUCTION_RESPONSE=$(curl -k -s -X POST "$API_URL/auction" \
         -H "Content-Type: application/json" \
         -d '{
             "borrower_address": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
@@ -87,7 +87,7 @@ demo_auction() {
     
     # 2. Place Bid 1
     echo "2. Placing first bid..."
-    BID1_RESPONSE=$(curl -s -X POST "$API_URL/api/v1/auction/0/bid" \
+    BID1_RESPONSE=$(curl -k -s -X POST "$API_URL/auction/0/bid" \
         -H "Content-Type: application/json" \
         -d '{
             "auction_id": 0,
@@ -100,7 +100,7 @@ demo_auction() {
     
     # 3. Place Bid 2
     echo "3. Placing second bid..."
-    BID2_RESPONSE=$(curl -s -X POST "$API_URL/api/v1/auction/0/bid" \
+    BID2_RESPONSE=$(curl -k -s -X POST "$API_URL/auction/0/bid" \
         -H "Content-Type: application/json" \
         -d '{
             "auction_id": 0,
@@ -113,7 +113,7 @@ demo_auction() {
     
     # 4. Finalize Auction
     echo "4. Finalizing auction..."
-    FINALIZE_RESPONSE=$(curl -s -X POST "$API_URL/api/v1/auction/0/finalize" \
+    FINALIZE_RESPONSE=$(curl -k -s -X POST "$API_URL/auction/0/finalize" \
         -H "Content-Type: application/json")
     
     echo "Auction Finalized: $FINALIZE_RESPONSE"
@@ -133,7 +133,8 @@ main() {
     echo "Demo scenario completed!"
     echo "==========================================${NC}"
     echo ""
-    echo "Check the frontend at http://localhost:3000"
+    echo "Check the frontend at https://aquax402.pagga.io"
+    echo "Check the API docs at https://aquax402.pagga.io/api/v1"
     echo "Check the backend logs for more details"
 }
 

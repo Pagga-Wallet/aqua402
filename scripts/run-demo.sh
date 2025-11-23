@@ -85,7 +85,7 @@ start_main_services() {
     # Check Backend
     attempt=0
     while [ $attempt -lt $max_attempts ]; do
-        if curl -s http://localhost:8080/health > /dev/null 2>&1; then
+        if curl -k -s https://aquax402.pagga.io/api/v1/../health > /dev/null 2>&1; then
             echo -e "${GREEN}Backend API is ready${NC}"
             break
         fi
@@ -260,8 +260,9 @@ main() {
     echo ""
     echo "Application Services:"
     echo "  - Hardhat Node: http://localhost:8545"
-    echo "  - Backend API: http://localhost:8080"
-    echo "  - Frontend: http://localhost:3000"
+    echo "  - Backend API: https://aquax402.pagga.io/api/v1"
+    echo "  - Frontend: https://aquax402.pagga.io"
+    echo "  - API Docs (Swagger): https://aquax402.pagga.io/api/v1"
     echo ""
     echo "Run demo scenario:"
     echo "  ./scripts/demo-scenario.sh"

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -26,11 +27,31 @@ func SetupApp() *echo.Echo {
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 
-	// Initialize services (with mocks for testing)
-	repo, _ := repositories.NewRepository("clickhouse://test:test@localhost:8123/test")
-	rfqRepo := repositories.NewRFQRepository(repo)
+	// Initialize ClickHouse repository
+	clickhouseDSN := os.Getenv("CLICKHOUSE_DSN")
+	if clickhouseDSN == "" {
+		clickhouseDSN = "clickhouse://admin:changeme@host.docker.internal:8123/aqua_x402"
+	}
+	repo, err := repositories.NewRepository(clickhouseDSN)
+	if err != nil {
+		logger.Warn("Failed to initialize ClickHouse repository", zap.Error(err))
+		// Continue with nil repo - handlers should handle this gracefully
+	}
+	var rfqRepo *repositories.RFQRepository
+	if repo != nil {
+		rfqRepo = repositories.NewRFQRepository(repo)
+	}
 
-	queue, _ := queues.NewQueue("amqp://guest:guest@localhost:5672/")
+	// Initialize RabbitMQ queue
+	rabbitmqURL := os.Getenv("RABBITMQ_URL")
+	if rabbitmqURL == "" {
+		rabbitmqURL = "amqp://admin:changeme@rabbitmq:5672/"
+	}
+	queue, err := queues.NewQueue(rabbitmqURL)
+	if err != nil {
+		logger.Warn("Failed to initialize RabbitMQ queue", zap.Error(err))
+		// Continue with nil queue - handlers should handle this gracefully
+	}
 
 	rfqService := rfq.NewService(rfqRepo, queue, logger)
 	auctionService := auction.NewService(queue, logger)
@@ -53,6 +74,11 @@ func SetupApp() *echo.Echo {
 
 	// API routes
 	api := e.Group("/api/v1")
+
+	// Health check in API group
+	api.GET("/health", func(c echo.Context) error {
+		return c.JSON(200, map[string]string{"status": "ok"})
+	})
 
 	// Swagger documentation - displayed at /api/v1/
 	// echo-swagger serves UI at /swagger/index.html
