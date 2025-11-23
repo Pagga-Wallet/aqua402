@@ -170,7 +170,7 @@ func main() {
 				BorrowerAddress: borrower,
 				Amount:          amount,
 				Duration:        durationUint,
-				CollateralType:  0, // Default, should be fetched from contract
+				CollateralType:  0,         // Default, should be fetched from contract
 				FlowDescription: "ipfs://", // Default, should be fetched from contract
 				Status:          "Open",
 				CreatedAt:       time.Now().Unix(),
@@ -250,4 +250,3 @@ func main() {
 	<-ctx.Done()
 	logger.Info("Worker exited")
 }
-
