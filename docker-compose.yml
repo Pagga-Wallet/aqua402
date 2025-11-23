@@ -59,14 +59,15 @@ services:
 
   # Hardhat Node (local blockchain)
   hardhat-node:
-    image: node:20-alpine
+    build:
+      context: ./contracts
+      dockerfile: Dockerfile
     container_name: aqua-x402-hardhat-node
-    working_dir: /app
     ports:
       - "8545:8545"
     volumes:
       - ./contracts:/app
-    command: sh -c "apk add --no-cache curl && npm install && npx hardhat node --hostname 0.0.0.0"
+      - /app/node_modules
     networks:
       - aqua-network
     healthcheck:
