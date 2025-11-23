@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { CONTRACT_ADDRESSES } from '../../lib/evm/contracts'
 import { AUCTION_ABI } from '../../lib/evm/abis'
@@ -6,17 +6,44 @@ import { parseEther } from 'viem'
 
 export const CreateAuctionForm = () => {
   const { address } = useAccount()
-  const { writeContract, isPending } = useWriteContract()
-  
   const [amount, setAmount] = useState('')
   const [duration, setDuration] = useState('')
   const [biddingDuration, setBiddingDuration] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined)
 
+  const { writeContract, isPending, data: writeContractData, error: writeContractError } = useWriteContract()
+
+  // Set hash from data when available
+  useEffect(() => {
+    if (writeContractData) {
+      setTxHash(writeContractData)
+      console.log('Auction transaction sent:', writeContractData)
+      setError(null)
+    }
+  }, [writeContractData])
+
+  // Handle errors
+  useEffect(() => {
+    if (writeContractError) {
+      const errorMessage = writeContractError instanceof Error ? writeContractError.message : 'Failed to create auction'
+      console.error('Failed to create auction:', writeContractError)
+      setError(errorMessage)
+    }
+  }, [writeContractError])
+
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash: txHash,
   })
+
+  // Reset form after successful transaction confirmation
+  useEffect(() => {
+    if (isConfirmed) {
+      setAmount('')
+      setDuration('')
+      setBiddingDuration('')
+    }
+  }, [isConfirmed])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,7 +64,7 @@ export const CreateAuctionForm = () => {
       const durationSeconds = parseInt(duration) * 24 * 60 * 60
       const biddingDurationSeconds = parseInt(biddingDuration) * 60 * 60
       
-      const hash = await writeContract({
+      writeContract({
         address: CONTRACT_ADDRESSES.auction as `0x${string}`,
         abi: AUCTION_ABI,
         functionName: 'createAuction',
@@ -47,16 +74,6 @@ export const CreateAuctionForm = () => {
           BigInt(biddingDurationSeconds)
         ],
       })
-
-      setTxHash(hash)
-      console.log('Auction transaction sent:', hash)
-      
-      // Reset form after successful transaction
-      if (isConfirmed) {
-        setAmount('')
-        setDuration('')
-        setBiddingDuration('')
-      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create auction'
       console.error('Failed to create auction:', err)

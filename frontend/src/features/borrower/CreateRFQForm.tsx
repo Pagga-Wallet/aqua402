@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { CONTRACT_ADDRESSES } from '../../lib/evm/contracts'
 import { RFQ_ABI } from '../../lib/evm/abis'
@@ -6,8 +6,6 @@ import { parseEther } from 'viem'
 
 export const CreateRFQForm = () => {
   const { address } = useAccount()
-  const { writeContract, isPending } = useWriteContract()
-  
   const [amount, setAmount] = useState('')
   const [duration, setDuration] = useState('')
   const [collateralType, setCollateralType] = useState('0')
@@ -15,9 +13,39 @@ export const CreateRFQForm = () => {
   const [error, setError] = useState<string | null>(null)
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined)
 
+  const { writeContract, isPending, data: writeContractData, error: writeContractError } = useWriteContract()
+
+  // Set hash from data when available
+  useEffect(() => {
+    if (writeContractData) {
+      setTxHash(writeContractData)
+      console.log('RFQ transaction sent:', writeContractData)
+      setError(null)
+    }
+  }, [writeContractData])
+
+  // Handle errors
+  useEffect(() => {
+    if (writeContractError) {
+      const errorMessage = writeContractError instanceof Error ? writeContractError.message : 'Failed to create RFQ'
+      console.error('Failed to create RFQ:', writeContractError)
+      setError(errorMessage)
+    }
+  }, [writeContractError])
+
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash: txHash,
   })
+
+  // Reset form after successful transaction confirmation
+  useEffect(() => {
+    if (isConfirmed) {
+      setAmount('')
+      setDuration('')
+      setCollateralType('0')
+      setFlowDescription('')
+    }
+  }, [isConfirmed])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,7 +65,7 @@ export const CreateRFQForm = () => {
     try {
       const durationSeconds = parseInt(duration) * 24 * 60 * 60
       
-      const hash = await writeContract({
+      writeContract({
         address: CONTRACT_ADDRESSES.rfq as `0x${string}`,
         abi: RFQ_ABI,
         functionName: 'createRFQ',
@@ -48,17 +76,6 @@ export const CreateRFQForm = () => {
           flowDescription || 'ipfs://'
         ],
       })
-
-      setTxHash(hash)
-      console.log('RFQ transaction sent:', hash)
-      
-      // Reset form after successful transaction
-      if (isConfirmed) {
-        setAmount('')
-        setDuration('')
-        setCollateralType('0')
-        setFlowDescription('')
-      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create RFQ'
       console.error('Failed to create RFQ:', err)
