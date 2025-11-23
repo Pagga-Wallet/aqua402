@@ -15,3 +15,11 @@ interface ImportMeta {
   readonly env: ImportMetaEnv
 }
 
+// Extend Window interface for MetaMask
+interface Window {
+  ethereum?: {
+    request: (args: { method: string; params?: any[] }) => Promise<any>
+    isMetaMask?: boolean
+  }
+}
+

@@ -3,10 +3,10 @@ import { sepolia, polygonMumbai } from 'wagmi/chains'
 import { defineChain } from 'viem'
 import { injected, metaMask, walletConnect } from 'wagmi/connectors'
 
-// Local Hardhat network configuration
-const hardhatLocal = defineChain({
+// Local PAGGA network configuration
+export const hardhatLocal = defineChain({
   id: 1337,
-  name: 'Hardhat Local',
+  name: 'PAGGA Local',
   nativeCurrency: {
     decimals: 18,
     name: 'Ether',
