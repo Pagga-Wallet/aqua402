@@ -88,6 +88,12 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VITE_RFQ_ADDRESS: ${VITE_RFQ_ADDRESS:-}
+        VITE_AUCTION_ADDRESS: ${VITE_AUCTION_ADDRESS:-}
+        VITE_AQUA_ADDRESS: ${VITE_AQUA_ADDRESS:-}
+        VITE_AGENT_FINANCE_ADDRESS: ${VITE_AGENT_FINANCE_ADDRESS:-}
+        VITE_API_URL: ${VITE_API_URL:-https://aquax402.pagga.io/api/v1}
     container_name: aqua-x402-frontend
     expose:
       - "80"

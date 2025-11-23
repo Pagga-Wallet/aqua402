@@ -30,7 +30,7 @@ start_clickhouse_cluster() {
     fi
     
     # Start ClickHouse cluster
-    docker-compose up -d
+    docker compose up -d
     
     # Wait for HAProxy to be ready
     echo -e "${BLUE}Waiting for ClickHouse cluster to be ready...${NC}"
@@ -88,9 +88,10 @@ start_main_services() {
         echo -e "${YELLOW}Using default values from docker-compose.yml${NC}"
     fi
     
-    # Start main services (excluding hardhat-node, it will be started separately)
-    # Note: backend-worker will be started after contracts are deployed (in deploy_contracts)
-    docker-compose up -d rabbitmq backend frontend
+    # Start main services (excluding hardhat-node and frontend)
+    # Note: backend-worker will be started after contracts are deployed
+    # Note: frontend will be started after contracts are deployed and rebuilt with contract addresses
+    docker compose up -d rabbitmq backend
     
     # Wait for services to be ready
     echo -e "${BLUE}Waiting for services to be ready...${NC}"
@@ -128,7 +129,7 @@ check_hardhat_node() {
         cd "$PROJECT_ROOT"
     
     # Start Hardhat node service
-    docker-compose up -d hardhat-node
+    docker compose up -d hardhat-node
     
     # Wait for Hardhat node to be ready
     echo -e "${BLUE}Waiting for Hardhat node to be ready...${NC}"
@@ -179,12 +180,21 @@ VITE_RFQ_ADDRESS=$RFQ_ADDRESS
 VITE_AUCTION_ADDRESS=$AUCTION_ADDRESS
 VITE_AQUA_ADDRESS=$AQUA_ADDRESS
 VITE_AGENT_FINANCE_ADDRESS=$AGENT_FINANCE_ADDRESS
-VITE_API_URL=http://localhost:8080
+VITE_API_URL=https://aquax402.pagga.io/api/v1
 RFQ_CONTRACT_ADDRESS=$RFQ_ADDRESS
 AUCTION_CONTRACT_ADDRESS=$AUCTION_ADDRESS
 EOF
     
     echo -e "${GREEN}Contract addresses saved to .env.demo${NC}"
+    
+    # Copy ABI files to frontend for use in build
+    echo -e "${BLUE}Copying ABI files to frontend...${NC}"
+    mkdir -p "$PROJECT_ROOT/frontend/src/lib/evm/abis-json"
+    cp "$PROJECT_ROOT/contracts/artifacts/contracts_src/auction/Auction.sol/Auction.json" \
+       "$PROJECT_ROOT/frontend/src/lib/evm/abis-json/auction.json" 2>/dev/null || echo -e "${YELLOW}Warning: Could not copy Auction ABI${NC}"
+    cp "$PROJECT_ROOT/contracts/artifacts/contracts_src/rfq/RFQ.sol/RFQ.json" \
+       "$PROJECT_ROOT/frontend/src/lib/evm/abis-json/rfq.json" 2>/dev/null || echo -e "${YELLOW}Warning: Could not copy RFQ ABI${NC}"
+    echo -e "${GREEN}ABI files copied${NC}"
 }
 
 # Rebuild frontend with new contract addresses
@@ -193,22 +203,47 @@ rebuild_frontend() {
     cd "$PROJECT_ROOT"
     
     # Load variables from .env.demo
-    if [ -f .env.demo ]; then
-        # Source .env.demo to export variables
-        set -a
-        source .env.demo
-        set +a
+    if [ ! -f .env.demo ]; then
+        echo -e "${RED}Error: .env.demo file not found. Please deploy contracts first.${NC}"
+        return 1
     fi
     
-    # Rebuild frontend container with build args
-    docker-compose build --build-arg VITE_RFQ_ADDRESS="${VITE_RFQ_ADDRESS:-}" \
-                         --build-arg VITE_AUCTION_ADDRESS="${VITE_AUCTION_ADDRESS:-}" \
-                         --build-arg VITE_AQUA_ADDRESS="${VITE_AQUA_ADDRESS:-}" \
-                         --build-arg VITE_AGENT_FINANCE_ADDRESS="${VITE_AGENT_FINANCE_ADDRESS:-}" \
-                         frontend
+    # Source .env.demo to export variables
+    set -a
+    source .env.demo
+    set +a
+    
+    # Verify variables are loaded
+    if [ -z "$VITE_RFQ_ADDRESS" ] || [ -z "$VITE_AUCTION_ADDRESS" ]; then
+        echo -e "${RED}Error: Contract addresses not found in .env.demo${NC}"
+        return 1
+    fi
+    
+    echo -e "${YELLOW}Contract addresses:${NC}"
+    echo "  RFQ: $VITE_RFQ_ADDRESS"
+    echo "  Auction: $VITE_AUCTION_ADDRESS"
+    echo "  Aqua: $VITE_AQUA_ADDRESS"
+    echo "  AgentFinance: $VITE_AGENT_FINANCE_ADDRESS"
+    
+    # Export variables so docker-compose can use them
+    export VITE_RFQ_ADDRESS
+    export VITE_AUCTION_ADDRESS
+    export VITE_AQUA_ADDRESS
+    export VITE_AGENT_FINANCE_ADDRESS
+    export VITE_API_URL
+    
+    # Rebuild frontend container (docker-compose will use build args from environment)
+    echo -e "${BLUE}Building frontend image...${NC}"
+    docker compose build --no-cache frontend
+    
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}Failed to build frontend${NC}"
+        return 1
+    fi
     
     # Restart frontend container
-    docker-compose up -d frontend
+    echo -e "${BLUE}Restarting frontend container...${NC}"
+    docker compose up -d frontend
     
     echo -e "${GREEN}Frontend rebuilt and restarted${NC}"
 }
@@ -219,10 +254,10 @@ restart_worker() {
     cd "$PROJECT_ROOT"
     
     # Stop worker if running
-    docker-compose stop backend-worker 2>/dev/null || true
+    docker compose stop backend-worker 2>/dev/null || true
     
     # Start worker (it will read addresses from .env.demo file)
-    docker-compose up -d backend-worker
+    docker compose up -d backend-worker
     
     # Wait a bit for worker to start
     sleep 3
@@ -274,11 +309,11 @@ cleanup() {
     
     # Stop main services (including Hardhat node)
     cd "$PROJECT_ROOT"
-    docker-compose down 2>/dev/null || true
+    docker compose down 2>/dev/null || true
     
     # Stop ClickHouse cluster
     cd "$PROJECT_ROOT/clickhouse"
-    docker-compose down 2>/dev/null || true
+    docker compose down 2>/dev/null || true
     
     cd "$PROJECT_ROOT"
 }
