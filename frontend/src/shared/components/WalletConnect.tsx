@@ -1,5 +1,5 @@
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
-import { injected, metaMask } from 'wagmi/connectors'
+import { metaMask } from 'wagmi/connectors'
 
 export const WalletConnect = () => {
   const { address, isConnected } = useAccount()

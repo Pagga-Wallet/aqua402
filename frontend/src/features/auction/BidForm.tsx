@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAccount, useWriteContract } from 'wagmi'
-import { CONTRACT_ADDRESSES, getAuctionContract } from '../../lib/evm/contracts'
+import { CONTRACT_ADDRESSES } from '../../lib/evm/contracts'
+import { AUCTION_ABI } from '../../lib/evm/abis'
 import { parseEther } from 'ethers'
 
 interface BidFormProps {
@@ -20,11 +21,9 @@ export const BidForm = ({ auctionId, onSubmitted }: BidFormProps) => {
     if (!address || !writeContract) return
 
     try {
-      const auctionContract = getAuctionContract(CONTRACT_ADDRESSES.auction, {} as any)
-      
       await writeContract({
         address: CONTRACT_ADDRESSES.auction as `0x${string}`,
-        abi: auctionContract.interface.format('json') as any,
+        abi: AUCTION_ABI,
         functionName: 'placeBid',
         args: [
           BigInt(auctionId),

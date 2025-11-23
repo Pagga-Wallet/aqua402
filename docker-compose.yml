@@ -1,7 +1,9 @@
 version: '3.8'
 
-# IMPORTANT: Before running this docker-compose, you must start the ClickHouse cluster:
-# cd clickhouse && docker-compose up -d
+# IMPORTANT: Before running this docker-compose, you must:
+# 1. Start the ClickHouse cluster: cd clickhouse && docker-compose up -d
+# 2. Start nginx-proxy (shared web): cd nginx-proxy && docker-compose up -d
+#    This creates the 'shared-web' network and handles SSL certificates
 # ClickHouse cluster must be available at localhost:8123 through HAProxy
 
 services:
@@ -26,8 +28,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: aqua-x402-backend
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     environment:
       PORT: 8080
       CLICKHOUSE_DSN: clickhouse://admin:${CLICKHOUSE_PASSWORD:-changeme}@host.docker.internal:8123/${CLICKHOUSE_DATABASE:-aqua_x402}
@@ -47,13 +49,11 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: aqua-x402-frontend
-    ports:
-      - "3000:3000"
+    expose:
+      - "80"
     environment:
-      VITE_API_URL: http://localhost:8080
+      VITE_API_URL: https://aquax402.pagga.io/api/v1
       VITE_WALLETCONNECT_PROJECT_ID: ${WALLETCONNECT_PROJECT_ID:-}
-    depends_on:
-      - backend
     networks:
       - aqua-network
 
@@ -76,10 +76,27 @@ services:
       retries: 10
       start_period: 10s
 
+  # Nginx App - reverse proxy for frontend and backend
+  nginx-app:
+    build:
+      context: .
+      dockerfile: ./nginx_app/Dockerfile
+    container_name: aqua-x402-nginx-app
+    env_file:
+      - .env_web
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - aqua-network
+      - shared-web
+
 volumes:
   rabbitmq_data:
 
 networks:
   aqua-network:
     driver: bridge
+  shared-web:
+    external: true
 

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAccount, useWriteContract } from 'wagmi'
-import { CONTRACT_ADDRESSES, getRFQContract } from '../../lib/evm/contracts'
+import { CONTRACT_ADDRESSES } from '../../lib/evm/contracts'
+import { RFQ_ABI } from '../../lib/evm/abis'
 import { parseEther } from 'ethers'
 
 interface QuoteFormProps {
@@ -21,11 +22,9 @@ export const QuoteForm = ({ rfqId, onSubmitted }: QuoteFormProps) => {
     if (!address || !writeContract) return
 
     try {
-      const rfqContract = getRFQContract(CONTRACT_ADDRESSES.rfq, {} as any)
-      
       await writeContract({
         address: CONTRACT_ADDRESSES.rfq as `0x${string}`,
-        abi: rfqContract.interface.format('json') as any,
+        abi: RFQ_ABI,
         functionName: 'submitQuote',
         args: [
           BigInt(rfqId),

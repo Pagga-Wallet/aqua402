@@ -129,14 +129,21 @@ go run cmd/worker/main.go
 
 ### Running via Docker
 
+**Prerequisites:**
+1. Start ClickHouse cluster: `cd clickhouse && docker-compose up -d`
+2. Start nginx-proxy (shared web): `cd nginx-proxy && docker-compose up -d`
+
+**Start main services:**
 ```bash
 docker-compose up -d
 ```
 
-Services will be available at:
+**Production URLs (after SSL certificate is issued):**
+-   Frontend: https://aquax402.pagga.io/
+-   API Documentation: https://aquax402.pagga.io/api/v1
+-   Backend API: https://aquax402.pagga.io/api/v1/*
 
--   Frontend: http://localhost:3000
--   Backend API: http://localhost:8080
+**Local development URLs:**
 -   ClickHouse: http://localhost:8123
 -   RabbitMQ Management: http://localhost:15672
 -   Hardhat Node: http://localhost:8545

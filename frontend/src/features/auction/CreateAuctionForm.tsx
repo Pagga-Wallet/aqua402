@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAccount, useWriteContract } from 'wagmi'
-import { CONTRACT_ADDRESSES, getAuctionContract } from '../../lib/evm/contracts'
+import { CONTRACT_ADDRESSES } from '../../lib/evm/contracts'
+import { AUCTION_ABI } from '../../lib/evm/abis'
 import { parseEther } from 'ethers'
 
 export const CreateAuctionForm = () => {
@@ -16,13 +17,12 @@ export const CreateAuctionForm = () => {
     if (!address || !writeContract) return
 
     try {
-      const auctionContract = getAuctionContract(CONTRACT_ADDRESSES.auction, {} as any)
       const durationSeconds = parseInt(duration) * 24 * 60 * 60
       const biddingDurationSeconds = parseInt(biddingDuration) * 60 * 60
       
       await writeContract({
         address: CONTRACT_ADDRESSES.auction as `0x${string}`,
-        abi: auctionContract.interface.format('json') as any,
+        abi: AUCTION_ABI,
         functionName: 'createAuction',
         args: [
           parseEther(amount),
