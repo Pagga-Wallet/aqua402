@@ -16,8 +16,8 @@ import (
 	"github.com/aqua-x402/backend/internal/services/auction"
 	"github.com/aqua-x402/backend/internal/services/faucet"
 	"github.com/aqua-x402/backend/internal/services/rfq"
-	"github.com/aqua-x402/backend/pkg/evm"
 	"github.com/aqua-x402/backend/internal/websocket"
+	"github.com/aqua-x402/backend/pkg/evm"
 )
 
 func SetupApp() *echo.Echo {
