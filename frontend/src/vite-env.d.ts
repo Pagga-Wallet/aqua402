@@ -3,6 +3,7 @@
 interface ImportMetaEnv {
   readonly VITE_API_URL: string
   readonly VITE_WALLETCONNECT_PROJECT_ID: string
+  readonly VITE_HARDHAT_RPC_URL: string
   readonly VITE_RFQ_ADDRESS: string
   readonly VITE_AUCTION_ADDRESS: string
   readonly VITE_AQUA_ADDRESS: string

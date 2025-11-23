@@ -124,7 +124,7 @@ start_main_services() {
 # Check if Hardhat node is running
 check_hardhat_node() {
     echo -e "${BLUE}Starting Hardhat node via docker-compose...${NC}"
-    cd "$PROJECT_ROOT"
+        cd "$PROJECT_ROOT"
     
     # Start Hardhat node service
     docker-compose up -d hardhat-node

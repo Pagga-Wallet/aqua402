@@ -44,7 +44,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/aqua.ConnectLiquidityRequest"
+                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_services_aqua.ConnectLiquidityRequest"
                         }
                     }
                 ],
@@ -141,7 +141,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/aqua.WithdrawLiquidityRequest"
+                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_services_aqua.WithdrawLiquidityRequest"
                         }
                     }
                 ],
@@ -196,7 +196,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auction.CreateAuctionRequest"
+                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_services_auction.CreateAuctionRequest"
                         }
                     }
                 ],
@@ -256,7 +256,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auction.BidRequest"
+                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_services_auction.BidRequest"
                         }
                     }
                 ],
@@ -335,6 +335,61 @@ const docTemplate = `{
                 }
             }
         },
+        "/faucet": {
+            "post": {
+                "description": "Requests test ETH tokens from the faucet for the specified address",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Faucet"
+                ],
+                "summary": "Request test tokens",
+                "parameters": [
+                    {
+                        "description": "Faucet request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_services_faucet.RequestTokensRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/rfq": {
             "get": {
                 "description": "Returns a list of all RFQ requests with pagination",
@@ -370,7 +425,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/repositories.RFQModel"
+                                "$ref": "#/definitions/github_com_aqua-x402_backend_internal_repositories.RFQModel"
                             }
                         }
                     },
@@ -404,7 +459,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/rfq.CreateRFQRequest"
+                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_services_rfq.CreateRFQRequest"
                         }
                     }
                 ],
@@ -412,7 +467,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/repositories.RFQModel"
+                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_repositories.RFQModel"
                         }
                     },
                     "400": {
@@ -462,7 +517,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/repositories.RFQModel"
+                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_repositories.RFQModel"
                         }
                     },
                     "400": {
@@ -513,7 +568,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/rfq.QuoteRequest"
+                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_services_rfq.QuoteRequest"
                         }
                     }
                 ],
@@ -550,66 +605,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "aqua.ConnectLiquidityRequest": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "string"
-                },
-                "lender_address": {
-                    "type": "string"
-                },
-                "token_address": {
-                    "type": "string"
-                }
-            }
-        },
-        "aqua.WithdrawLiquidityRequest": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "string"
-                },
-                "lender_address": {
-                    "type": "string"
-                }
-            }
-        },
-        "auction.BidRequest": {
-            "type": "object",
-            "properties": {
-                "auction_id": {
-                    "type": "integer"
-                },
-                "lender_address": {
-                    "type": "string"
-                },
-                "limit": {
-                    "type": "string"
-                },
-                "rate_bps": {
-                    "type": "integer"
-                }
-            }
-        },
-        "auction.CreateAuctionRequest": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "string"
-                },
-                "bidding_duration": {
-                    "type": "integer"
-                },
-                "borrower_address": {
-                    "type": "string"
-                },
-                "duration": {
-                    "type": "integer"
-                }
-            }
-        },
-        "repositories.RFQModel": {
+        "github_com_aqua-x402_backend_internal_repositories.RFQModel": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -642,7 +638,78 @@ const docTemplate = `{
                 }
             }
         },
-        "rfq.CreateRFQRequest": {
+        "github_com_aqua-x402_backend_internal_services_aqua.ConnectLiquidityRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "string"
+                },
+                "lender_address": {
+                    "type": "string"
+                },
+                "token_address": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_aqua-x402_backend_internal_services_aqua.WithdrawLiquidityRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "string"
+                },
+                "lender_address": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_aqua-x402_backend_internal_services_auction.BidRequest": {
+            "type": "object",
+            "properties": {
+                "auction_id": {
+                    "type": "integer"
+                },
+                "lender_address": {
+                    "type": "string"
+                },
+                "limit": {
+                    "type": "string"
+                },
+                "rate_bps": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_aqua-x402_backend_internal_services_auction.CreateAuctionRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "string"
+                },
+                "bidding_duration": {
+                    "type": "integer"
+                },
+                "borrower_address": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_aqua-x402_backend_internal_services_faucet.RequestTokensRequest": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "amount": {
+                    "description": "Amount in ETH (will be converted to Wei)",
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_aqua-x402_backend_internal_services_rfq.CreateRFQRequest": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -662,7 +729,7 @@ const docTemplate = `{
                 }
             }
         },
-        "rfq.QuoteRequest": {
+        "github_com_aqua-x402_backend_internal_services_rfq.QuoteRequest": {
             "type": "object",
             "properties": {
                 "collateral_required": {

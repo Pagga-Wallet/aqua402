@@ -1,44 +1,6 @@
 basePath: /api/v1
 definitions:
-  aqua.ConnectLiquidityRequest:
-    properties:
-      amount:
-        type: string
-      lender_address:
-        type: string
-      token_address:
-        type: string
-    type: object
-  aqua.WithdrawLiquidityRequest:
-    properties:
-      amount:
-        type: string
-      lender_address:
-        type: string
-    type: object
-  auction.BidRequest:
-    properties:
-      auction_id:
-        type: integer
-      lender_address:
-        type: string
-      limit:
-        type: string
-      rate_bps:
-        type: integer
-    type: object
-  auction.CreateAuctionRequest:
-    properties:
-      amount:
-        type: string
-      bidding_duration:
-        type: integer
-      borrower_address:
-        type: string
-      duration:
-        type: integer
-    type: object
-  repositories.RFQModel:
+  github_com_aqua-x402_backend_internal_repositories.RFQModel:
     properties:
       amount:
         type: string
@@ -61,7 +23,53 @@ definitions:
       status:
         type: string
     type: object
-  rfq.CreateRFQRequest:
+  github_com_aqua-x402_backend_internal_services_aqua.ConnectLiquidityRequest:
+    properties:
+      amount:
+        type: string
+      lender_address:
+        type: string
+      token_address:
+        type: string
+    type: object
+  github_com_aqua-x402_backend_internal_services_aqua.WithdrawLiquidityRequest:
+    properties:
+      amount:
+        type: string
+      lender_address:
+        type: string
+    type: object
+  github_com_aqua-x402_backend_internal_services_auction.BidRequest:
+    properties:
+      auction_id:
+        type: integer
+      lender_address:
+        type: string
+      limit:
+        type: string
+      rate_bps:
+        type: integer
+    type: object
+  github_com_aqua-x402_backend_internal_services_auction.CreateAuctionRequest:
+    properties:
+      amount:
+        type: string
+      bidding_duration:
+        type: integer
+      borrower_address:
+        type: string
+      duration:
+        type: integer
+    type: object
+  github_com_aqua-x402_backend_internal_services_faucet.RequestTokensRequest:
+    properties:
+      address:
+        type: string
+      amount:
+        description: Amount in ETH (will be converted to Wei)
+        type: string
+    type: object
+  github_com_aqua-x402_backend_internal_services_rfq.CreateRFQRequest:
     properties:
       amount:
         type: string
@@ -74,7 +82,7 @@ definitions:
       flow_description:
         type: string
     type: object
-  rfq.QuoteRequest:
+  github_com_aqua-x402_backend_internal_services_rfq.QuoteRequest:
     properties:
       collateral_required:
         type: string
@@ -87,14 +95,14 @@ definitions:
       rfq_id:
         type: integer
     type: object
-host: localhost:8080
+host: aquax402.pagga.io
 info:
   contact:
     email: support@swagger.io
     name: API Support
     url: http://www.swagger.io/support
-  description: API для слоя финансирования агентов поверх протокола 402 (x402/A2A)
-    с интеграцией 1inch Aqua
+  description: API for agent financing layer on top of the 402 protocol (x402/A2A)
+    with 1inch Aqua integration
   license:
     name: MIT
     url: http://www.apache.org/licenses/LICENSE-2.0.html
@@ -106,14 +114,14 @@ paths:
     post:
       consumes:
       - application/json
-      description: Подключает ликвидность кредитора через 1inch Aqua
+      description: Connects lender liquidity through 1inch Aqua
       parameters:
-      - description: Данные ликвидности
+      - description: Liquidity data
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/aqua.ConnectLiquidityRequest'
+          $ref: '#/definitions/github_com_aqua-x402_backend_internal_services_aqua.ConnectLiquidityRequest'
       produces:
       - application/json
       responses:
@@ -135,16 +143,16 @@ paths:
             additionalProperties:
               type: string
             type: object
-      summary: Подключить ликвидность
+      summary: Connect liquidity
       tags:
       - Aqua
   /aqua/liquidity/{address}:
     get:
       consumes:
       - application/json
-      description: Возвращает доступную ликвидность для кредитора
+      description: Returns available liquidity for a lender
       parameters:
-      - description: Адрес кредитора
+      - description: Lender address
         in: path
         name: address
         required: true
@@ -163,21 +171,21 @@ paths:
             additionalProperties:
               type: string
             type: object
-      summary: Получить ликвидность
+      summary: Get liquidity
       tags:
       - Aqua
   /aqua/withdraw:
     post:
       consumes:
       - application/json
-      description: Выводит ликвидность из Aqua
+      description: Withdraws liquidity from Aqua
       parameters:
-      - description: Данные вывода
+      - description: Withdrawal data
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/aqua.WithdrawLiquidityRequest'
+          $ref: '#/definitions/github_com_aqua-x402_backend_internal_services_aqua.WithdrawLiquidityRequest'
       produces:
       - application/json
       responses:
@@ -199,21 +207,21 @@ paths:
             additionalProperties:
               type: string
             type: object
-      summary: Вывести ликвидность
+      summary: Withdraw liquidity
       tags:
       - Aqua
   /auction:
     post:
       consumes:
       - application/json
-      description: Создаёт новый аукцион для финансирования
+      description: Creates a new auction for financing
       parameters:
-      - description: Данные аукциона
+      - description: Auction data
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/auction.CreateAuctionRequest'
+          $ref: '#/definitions/github_com_aqua-x402_backend_internal_services_auction.CreateAuctionRequest'
       produces:
       - application/json
       responses:
@@ -234,26 +242,26 @@ paths:
             additionalProperties:
               type: string
             type: object
-      summary: Создать аукцион
+      summary: Create auction
       tags:
       - Auction
   /auction/{id}/bid:
     post:
       consumes:
       - application/json
-      description: Размещает ставку на конкретном аукционе
+      description: Places a bid on a specific auction
       parameters:
       - description: Auction ID
         in: path
         name: id
         required: true
         type: integer
-      - description: Данные ставки
+      - description: Bid data
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/auction.BidRequest'
+          $ref: '#/definitions/github_com_aqua-x402_backend_internal_services_auction.BidRequest'
       produces:
       - application/json
       responses:
@@ -275,14 +283,14 @@ paths:
             additionalProperties:
               type: string
             type: object
-      summary: Разместить ставку
+      summary: Place bid
       tags:
       - Auction
   /auction/{id}/finalize:
     post:
       consumes:
       - application/json
-      description: Финализирует аукцион, выбирая лучшую ставку
+      description: Finalizes an auction by selecting the best bid
       parameters:
       - description: Auction ID
         in: path
@@ -304,22 +312,58 @@ paths:
             additionalProperties:
               type: string
             type: object
-      summary: Финализировать аукцион
+      summary: Finalize auction
       tags:
       - Auction
+  /faucet:
+    post:
+      consumes:
+      - application/json
+      description: Requests test ETH tokens from the faucet for the specified address
+      parameters:
+      - description: Faucet request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_aqua-x402_backend_internal_services_faucet.RequestTokensRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Request test tokens
+      tags:
+      - Faucet
   /rfq:
     get:
       consumes:
       - application/json
-      description: Возвращает список всех RFQ запросов с пагинацией
+      description: Returns a list of all RFQ requests with pagination
       parameters:
       - default: 20
-        description: Лимит записей
+        description: Record limit
         in: query
         name: limit
         type: integer
       - default: 0
-        description: Смещение
+        description: Offset
         in: query
         name: offset
         type: integer
@@ -330,7 +374,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/repositories.RFQModel'
+              $ref: '#/definitions/github_com_aqua-x402_backend_internal_repositories.RFQModel'
             type: array
         "500":
           description: Internal Server Error
@@ -338,27 +382,27 @@ paths:
             additionalProperties:
               type: string
             type: object
-      summary: Список RFQ
+      summary: List RFQs
       tags:
       - RFQ
     post:
       consumes:
       - application/json
-      description: Создаёт новый запрос на предложение (Request for Quote)
+      description: Creates a new Request for Quote
       parameters:
-      - description: RFQ данные
+      - description: RFQ data
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/rfq.CreateRFQRequest'
+          $ref: '#/definitions/github_com_aqua-x402_backend_internal_services_rfq.CreateRFQRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/repositories.RFQModel'
+            $ref: '#/definitions/github_com_aqua-x402_backend_internal_repositories.RFQModel'
         "400":
           description: Bad Request
           schema:
@@ -371,14 +415,14 @@ paths:
             additionalProperties:
               type: string
             type: object
-      summary: Создать RFQ
+      summary: Create RFQ
       tags:
       - RFQ
   /rfq/{id}:
     get:
       consumes:
       - application/json
-      description: Возвращает информацию о конкретном RFQ запросе
+      description: Returns information about a specific RFQ request
       parameters:
       - description: RFQ ID
         in: path
@@ -391,7 +435,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/repositories.RFQModel'
+            $ref: '#/definitions/github_com_aqua-x402_backend_internal_repositories.RFQModel'
         "400":
           description: Bad Request
           schema:
@@ -404,26 +448,26 @@ paths:
             additionalProperties:
               type: string
             type: object
-      summary: Получить RFQ
+      summary: Get RFQ
       tags:
       - RFQ
   /rfq/{id}/quote:
     post:
       consumes:
       - application/json
-      description: Отправляет предложение (quote) для конкретного RFQ
+      description: Submits a quote for a specific RFQ
       parameters:
       - description: RFQ ID
         in: path
         name: id
         required: true
         type: integer
-      - description: Данные предложения
+      - description: Quote data
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/rfq.QuoteRequest'
+          $ref: '#/definitions/github_com_aqua-x402_backend_internal_services_rfq.QuoteRequest'
       produces:
       - application/json
       responses:
@@ -445,10 +489,9 @@ paths:
             additionalProperties:
               type: string
             type: object
-      summary: Отправить предложение
+      summary: Submit quote
       tags:
       - RFQ
 schemes:
-- http
 - https
 swagger: "2.0"

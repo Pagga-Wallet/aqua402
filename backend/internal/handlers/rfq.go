@@ -4,10 +4,14 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/aqua-x402/backend/internal/repositories"
 	"github.com/aqua-x402/backend/internal/services/rfq"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
+
+// Ensure repositories package is imported for Swagger documentation
+var _ = repositories.RFQModel{}
 
 type RFQHandler struct {
 	service *rfq.Service

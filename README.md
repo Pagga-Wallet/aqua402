@@ -147,6 +147,7 @@ docker-compose up -d
 -   ClickHouse: http://localhost:8123
 -   RabbitMQ Management: http://localhost:15672
 -   Hardhat Node: http://localhost:8545
+-   Hardhat Node RPC (via proxy): https://aquax402.pagga.io/api/hh
 
 **Note:** Hardhat node is now managed via docker-compose. To start/stop it separately:
 
@@ -222,6 +223,46 @@ npm run deploy -- --network mumbai
 ### Backend and Frontend
 
 Use Docker Compose for production deployment or configure a CI/CD pipeline.
+
+## Local Hardhat Network Testing
+
+The application supports testing on a local Hardhat network (chainId 1337). This allows you to test smart contracts and interactions without using real testnet tokens.
+
+### Connecting to Local Network
+
+1. **In MetaMask or your wallet:**
+   - Add a custom network with the following settings:
+     - Network Name: `Hardhat Local`
+     - RPC URL: `https://aquax402.pagga.io/api/hh`
+     - Chain ID: `1337`
+     - Currency Symbol: `ETH`
+
+2. **The frontend will automatically detect the local network** when you connect your wallet and show the faucet component.
+
+### Getting Test Tokens
+
+The application includes a built-in faucet for the local Hardhat network:
+
+1. Connect your wallet to the Hardhat Local network (chainId 1337)
+2. Click the "Get 1 ETH" button in the faucet component (visible in the header when on the local network)
+3. The faucet will send 1 ETH to your connected wallet address
+4. You can request tokens multiple times as needed for testing
+
+### Faucet Configuration
+
+The faucet uses the first Hardhat account (account #0) by default. To use a different account, set the `FAUCET_PRIVATE_KEY` environment variable in the backend:
+
+```bash
+FAUCET_PRIVATE_KEY=0x...your_private_key_here
+```
+
+You can also configure the chain ID if needed:
+
+```bash
+FAUCET_CHAIN_ID=1337
+```
+
+**Note:** The faucet only works on the local Hardhat network (chainId 1337) for security reasons.
 
 ## License
 

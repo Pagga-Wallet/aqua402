@@ -14,7 +14,9 @@ import (
 	"github.com/aqua-x402/backend/internal/repositories"
 	"github.com/aqua-x402/backend/internal/services/aqua"
 	"github.com/aqua-x402/backend/internal/services/auction"
+	"github.com/aqua-x402/backend/internal/services/faucet"
 	"github.com/aqua-x402/backend/internal/services/rfq"
+	"github.com/aqua-x402/backend/pkg/evm"
 	"github.com/aqua-x402/backend/internal/websocket"
 )
 
@@ -57,10 +59,31 @@ func SetupApp() *echo.Echo {
 	auctionService := auction.NewService(queue, logger)
 	aquaService := aqua.NewService(queue, logger)
 
+	// Initialize EVM client for faucet
+	evmRPCURL := os.Getenv("EVM_RPC_URL")
+	if evmRPCURL == "" {
+		evmRPCURL = "http://hardhat-node:8545"
+	}
+	evmClient, err := evm.NewClient(evmRPCURL)
+	if err != nil {
+		logger.Warn("Failed to initialize EVM client for faucet", zap.Error(err))
+	}
+	var faucetService *faucet.Service
+	if evmClient != nil {
+		faucetService, err = faucet.NewService(evmClient, logger)
+		if err != nil {
+			logger.Warn("Failed to initialize faucet service", zap.Error(err))
+		}
+	}
+
 	// Initialize handlers
 	rfqHandler := handlers.NewRFQHandler(rfqService, logger)
 	auctionHandler := handlers.NewAuctionHandler(auctionService, logger)
 	aquaHandler := handlers.NewAquaHandler(aquaService, logger)
+	var faucetHandler *handlers.FaucetHandler
+	if faucetService != nil {
+		faucetHandler = handlers.NewFaucetHandler(faucetService, logger)
+	}
 
 	// Initialize WebSocket hub
 	wsHub := websocket.NewHub()
@@ -130,6 +153,11 @@ func SetupApp() *echo.Echo {
 	api.POST("/aqua/liquidity", aquaHandler.ConnectLiquidity)
 	api.GET("/aqua/liquidity/:address", aquaHandler.GetAvailableLiquidity)
 	api.POST("/aqua/withdraw", aquaHandler.WithdrawLiquidity)
+
+	// Faucet endpoint
+	if faucetHandler != nil {
+		api.POST("/faucet", faucetHandler.RequestTokens)
+	}
 
 	// WebSocket routes
 	e.GET("/ws", wsHandler.HandleWebSocket)

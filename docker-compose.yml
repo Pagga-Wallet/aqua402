@@ -35,6 +35,10 @@ services:
       CLICKHOUSE_DSN: clickhouse://admin:CH_S3cur3_2025_Admin_PAGGA_987@host.docker.internal:9000/pagga_data
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-admin}:${RABBITMQ_PASSWORD:-changeme}@rabbitmq:5672/
       EVM_RPC_URL: ${EVM_RPC_URL:-http://hardhat-node:8545}
+    volumes:
+      # Mount docs directory to sync Swagger files from container to host
+      # Swagger files are generated during build in /app/docs and copied to this volume
+      - ./backend/docs:/app/docs
     depends_on:
       - rabbitmq
       - hardhat-node
@@ -54,6 +58,7 @@ services:
     environment:
       VITE_API_URL: https://aquax402.pagga.io/api/v1
       VITE_WALLETCONNECT_PROJECT_ID: ${WALLETCONNECT_PROJECT_ID:-}
+      VITE_HARDHAT_RPC_URL: https://aquax402.pagga.io/api/hh
     networks:
       - aqua-network
 

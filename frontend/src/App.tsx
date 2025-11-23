@@ -3,6 +3,7 @@ import { WagmiProvider } from 'wagmi'
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
 import { wagmiConfig } from './lib/evm/wagmi'
 import { WalletConnect } from './shared/components/WalletConnect'
+import { Faucet } from './shared/components/Faucet'
 import { BorrowerDashboard } from './features/borrower/BorrowerDashboard'
 import { LenderDashboard } from './features/lender/LenderDashboard'
 import { AuctionLiveView } from './features/auction/AuctionLiveView'
@@ -18,6 +19,7 @@ function App() {
             <header>
               <h1>Aqua x402 Finance Layer</h1>
               <WalletConnect />
+              <Faucet />
             </header>
             <nav>
               <Link to="/borrower">Borrower</Link>

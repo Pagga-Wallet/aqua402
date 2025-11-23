@@ -1,11 +1,10 @@
 {
     "schemes": [
-        "http",
         "https"
     ],
     "swagger": "2.0",
     "info": {
-        "description": "API для слоя финансирования агентов поверх протокола 402 (x402/A2A) с интеграцией 1inch Aqua",
+        "description": "API for agent financing layer on top of the 402 protocol (x402/A2A) with 1inch Aqua integration",
         "title": "Aqua x402 Finance Layer API",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
@@ -19,12 +18,12 @@
         },
         "version": "1.0"
     },
-    "host": "localhost:8080",
+    "host": "aquax402.pagga.io",
     "basePath": "/api/v1",
     "paths": {
         "/aqua/liquidity": {
             "post": {
-                "description": "Подключает ликвидность кредитора через 1inch Aqua",
+                "description": "Connects lender liquidity through 1inch Aqua",
                 "consumes": [
                     "application/json"
                 ],
@@ -34,15 +33,15 @@
                 "tags": [
                     "Aqua"
                 ],
-                "summary": "Подключить ликвидность",
+                "summary": "Connect liquidity",
                 "parameters": [
                     {
-                        "description": "Данные ликвидности",
+                        "description": "Liquidity data",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/aqua.ConnectLiquidityRequest"
+                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_services_aqua.ConnectLiquidityRequest"
                         }
                     }
                 ],
@@ -79,7 +78,7 @@
         },
         "/aqua/liquidity/{address}": {
             "get": {
-                "description": "Возвращает доступную ликвидность для кредитора",
+                "description": "Returns available liquidity for a lender",
                 "consumes": [
                     "application/json"
                 ],
@@ -89,11 +88,11 @@
                 "tags": [
                     "Aqua"
                 ],
-                "summary": "Получить ликвидность",
+                "summary": "Get liquidity",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Адрес кредитора",
+                        "description": "Lender address",
                         "name": "address",
                         "in": "path",
                         "required": true
@@ -121,7 +120,7 @@
         },
         "/aqua/withdraw": {
             "post": {
-                "description": "Выводит ликвидность из Aqua",
+                "description": "Withdraws liquidity from Aqua",
                 "consumes": [
                     "application/json"
                 ],
@@ -131,15 +130,15 @@
                 "tags": [
                     "Aqua"
                 ],
-                "summary": "Вывести ликвидность",
+                "summary": "Withdraw liquidity",
                 "parameters": [
                     {
-                        "description": "Данные вывода",
+                        "description": "Withdrawal data",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/aqua.WithdrawLiquidityRequest"
+                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_services_aqua.WithdrawLiquidityRequest"
                         }
                     }
                 ],
@@ -176,7 +175,7 @@
         },
         "/auction": {
             "post": {
-                "description": "Создаёт новый аукцион для финансирования",
+                "description": "Creates a new auction for financing",
                 "consumes": [
                     "application/json"
                 ],
@@ -186,15 +185,15 @@
                 "tags": [
                     "Auction"
                 ],
-                "summary": "Создать аукцион",
+                "summary": "Create auction",
                 "parameters": [
                     {
-                        "description": "Данные аукциона",
+                        "description": "Auction data",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auction.CreateAuctionRequest"
+                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_services_auction.CreateAuctionRequest"
                         }
                     }
                 ],
@@ -229,7 +228,7 @@
         },
         "/auction/{id}/bid": {
             "post": {
-                "description": "Размещает ставку на конкретном аукционе",
+                "description": "Places a bid on a specific auction",
                 "consumes": [
                     "application/json"
                 ],
@@ -239,7 +238,7 @@
                 "tags": [
                     "Auction"
                 ],
-                "summary": "Разместить ставку",
+                "summary": "Place bid",
                 "parameters": [
                     {
                         "type": "integer",
@@ -249,12 +248,12 @@
                         "required": true
                     },
                     {
-                        "description": "Данные ставки",
+                        "description": "Bid data",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auction.BidRequest"
+                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_services_auction.BidRequest"
                         }
                     }
                 ],
@@ -291,7 +290,7 @@
         },
         "/auction/{id}/finalize": {
             "post": {
-                "description": "Финализирует аукцион, выбирая лучшую ставку",
+                "description": "Finalizes an auction by selecting the best bid",
                 "consumes": [
                     "application/json"
                 ],
@@ -301,7 +300,7 @@
                 "tags": [
                     "Auction"
                 ],
-                "summary": "Финализировать аукцион",
+                "summary": "Finalize auction",
                 "parameters": [
                     {
                         "type": "integer",
@@ -333,9 +332,64 @@
                 }
             }
         },
+        "/faucet": {
+            "post": {
+                "description": "Requests test ETH tokens from the faucet for the specified address",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Faucet"
+                ],
+                "summary": "Request test tokens",
+                "parameters": [
+                    {
+                        "description": "Faucet request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_services_faucet.RequestTokensRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/rfq": {
             "get": {
-                "description": "Возвращает список всех RFQ запросов с пагинацией",
+                "description": "Returns a list of all RFQ requests with pagination",
                 "consumes": [
                     "application/json"
                 ],
@@ -345,19 +399,19 @@
                 "tags": [
                     "RFQ"
                 ],
-                "summary": "Список RFQ",
+                "summary": "List RFQs",
                 "parameters": [
                     {
                         "type": "integer",
                         "default": 20,
-                        "description": "Лимит записей",
+                        "description": "Record limit",
                         "name": "limit",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 0,
-                        "description": "Смещение",
+                        "description": "Offset",
                         "name": "offset",
                         "in": "query"
                     }
@@ -368,7 +422,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/repositories.RFQModel"
+                                "$ref": "#/definitions/github_com_aqua-x402_backend_internal_repositories.RFQModel"
                             }
                         }
                     },
@@ -384,7 +438,7 @@
                 }
             },
             "post": {
-                "description": "Создаёт новый запрос на предложение (Request for Quote)",
+                "description": "Creates a new Request for Quote",
                 "consumes": [
                     "application/json"
                 ],
@@ -394,15 +448,15 @@
                 "tags": [
                     "RFQ"
                 ],
-                "summary": "Создать RFQ",
+                "summary": "Create RFQ",
                 "parameters": [
                     {
-                        "description": "RFQ данные",
+                        "description": "RFQ data",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/rfq.CreateRFQRequest"
+                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_services_rfq.CreateRFQRequest"
                         }
                     }
                 ],
@@ -410,7 +464,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/repositories.RFQModel"
+                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_repositories.RFQModel"
                         }
                     },
                     "400": {
@@ -436,7 +490,7 @@
         },
         "/rfq/{id}": {
             "get": {
-                "description": "Возвращает информацию о конкретном RFQ запросе",
+                "description": "Returns information about a specific RFQ request",
                 "consumes": [
                     "application/json"
                 ],
@@ -446,7 +500,7 @@
                 "tags": [
                     "RFQ"
                 ],
-                "summary": "Получить RFQ",
+                "summary": "Get RFQ",
                 "parameters": [
                     {
                         "type": "integer",
@@ -460,7 +514,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/repositories.RFQModel"
+                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_repositories.RFQModel"
                         }
                     },
                     "400": {
@@ -486,7 +540,7 @@
         },
         "/rfq/{id}/quote": {
             "post": {
-                "description": "Отправляет предложение (quote) для конкретного RFQ",
+                "description": "Submits a quote for a specific RFQ",
                 "consumes": [
                     "application/json"
                 ],
@@ -496,7 +550,7 @@
                 "tags": [
                     "RFQ"
                 ],
-                "summary": "Отправить предложение",
+                "summary": "Submit quote",
                 "parameters": [
                     {
                         "type": "integer",
@@ -506,12 +560,12 @@
                         "required": true
                     },
                     {
-                        "description": "Данные предложения",
+                        "description": "Quote data",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/rfq.QuoteRequest"
+                            "$ref": "#/definitions/github_com_aqua-x402_backend_internal_services_rfq.QuoteRequest"
                         }
                     }
                 ],
@@ -548,66 +602,7 @@
         }
     },
     "definitions": {
-        "aqua.ConnectLiquidityRequest": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "string"
-                },
-                "lender_address": {
-                    "type": "string"
-                },
-                "token_address": {
-                    "type": "string"
-                }
-            }
-        },
-        "aqua.WithdrawLiquidityRequest": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "string"
-                },
-                "lender_address": {
-                    "type": "string"
-                }
-            }
-        },
-        "auction.BidRequest": {
-            "type": "object",
-            "properties": {
-                "auction_id": {
-                    "type": "integer"
-                },
-                "lender_address": {
-                    "type": "string"
-                },
-                "limit": {
-                    "type": "string"
-                },
-                "rate_bps": {
-                    "type": "integer"
-                }
-            }
-        },
-        "auction.CreateAuctionRequest": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "string"
-                },
-                "bidding_duration": {
-                    "type": "integer"
-                },
-                "borrower_address": {
-                    "type": "string"
-                },
-                "duration": {
-                    "type": "integer"
-                }
-            }
-        },
-        "repositories.RFQModel": {
+        "github_com_aqua-x402_backend_internal_repositories.RFQModel": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -640,7 +635,78 @@
                 }
             }
         },
-        "rfq.CreateRFQRequest": {
+        "github_com_aqua-x402_backend_internal_services_aqua.ConnectLiquidityRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "string"
+                },
+                "lender_address": {
+                    "type": "string"
+                },
+                "token_address": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_aqua-x402_backend_internal_services_aqua.WithdrawLiquidityRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "string"
+                },
+                "lender_address": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_aqua-x402_backend_internal_services_auction.BidRequest": {
+            "type": "object",
+            "properties": {
+                "auction_id": {
+                    "type": "integer"
+                },
+                "lender_address": {
+                    "type": "string"
+                },
+                "limit": {
+                    "type": "string"
+                },
+                "rate_bps": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_aqua-x402_backend_internal_services_auction.CreateAuctionRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "string"
+                },
+                "bidding_duration": {
+                    "type": "integer"
+                },
+                "borrower_address": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_aqua-x402_backend_internal_services_faucet.RequestTokensRequest": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "amount": {
+                    "description": "Amount in ETH (will be converted to Wei)",
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_aqua-x402_backend_internal_services_rfq.CreateRFQRequest": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -660,7 +726,7 @@
                 }
             }
         },
-        "rfq.QuoteRequest": {
+        "github_com_aqua-x402_backend_internal_services_rfq.QuoteRequest": {
             "type": "object",
             "properties": {
                 "collateral_required": {
