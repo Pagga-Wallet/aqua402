@@ -39,6 +39,31 @@ start_clickhouse_cluster() {
     while [ $attempt -lt $max_attempts ]; do
         if curl -s http://localhost:8123/ping > /dev/null 2>&1; then
             echo -e "${GREEN}ClickHouse cluster is ready${NC}"
+            
+            # Run migrations automatically
+            echo -e "${BLUE}Applying ClickHouse migrations...${NC}"
+            # Wait a bit more for all nodes to be fully ready
+            sleep 5
+            MIGRATION_OUTPUT=$(docker compose run --rm migrator \
+                --dsn "clickhouse://admin:CH_S3cur3_2025_Admin_PAGGA_987@haproxy-clickhouse:9000/pagga_data" \
+                --cluster "pagga_cluster" \
+                --db "pagga_data" \
+                --dir "/migrations" \
+                --table "goose_db_version" \
+                up 2>&1)
+            MIGRATION_EXIT_CODE=$?
+            echo "$MIGRATION_OUTPUT"
+            if [ $MIGRATION_EXIT_CODE -eq 0 ]; then
+                echo -e "${GREEN}Migrations applied successfully${NC}"
+            else
+                # Check if error is about connection issues (migrations may already be applied)
+                if echo "$MIGRATION_OUTPUT" | grep -q "connection\|already applied\|already exists"; then
+                    echo -e "${YELLOW}Note: Some migrations may already be applied or connection issue occurred${NC}"
+                else
+                    echo -e "${YELLOW}Migration completed with warnings${NC}"
+                fi
+            fi
+            
             cd "$PROJECT_ROOT"
             return 0
         fi

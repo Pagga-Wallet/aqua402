@@ -32,7 +32,7 @@ services:
       - "8080"
     environment:
       PORT: 8080
-      CLICKHOUSE_DSN: clickhouse://admin:${CLICKHOUSE_PASSWORD:-changeme}@host.docker.internal:8123/${CLICKHOUSE_DATABASE:-aqua_x402}
+      CLICKHOUSE_DSN: clickhouse://admin:CH_S3cur3_2025_Admin_PAGGA_987@host.docker.internal:9000/pagga_data
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-admin}:${RABBITMQ_PASSWORD:-changeme}@rabbitmq:5672/
       EVM_RPC_URL: ${EVM_RPC_URL:-http://hardhat-node:8545}
     depends_on:

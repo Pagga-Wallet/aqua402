@@ -30,7 +30,7 @@ func SetupApp() *echo.Echo {
 	// Initialize ClickHouse repository
 	clickhouseDSN := os.Getenv("CLICKHOUSE_DSN")
 	if clickhouseDSN == "" {
-		clickhouseDSN = "clickhouse://admin:changeme@host.docker.internal:8123/aqua_x402"
+		clickhouseDSN = "clickhouse://admin:CH_S3cur3_2025_Admin_PAGGA_987@host.docker.internal:9000/pagga_data"
 	}
 	repo, err := repositories.NewRepository(clickhouseDSN)
 	if err != nil {
