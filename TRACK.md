@@ -1,8 +1,8 @@
 # Track Information
 
-This document describes how the project uses the following protocols/APIs for prize eligibility.
+This document describes how the project uses the following protocols/APIs for prize eligibility at [ETHGlobal Buenos Aires](https://ethglobal.com/events/buenosaires).
 
-## 1inch - $20000
+## [1inch - $20000](https://ethglobal.com/events/buenosaires/prizes/1inch)
 
 ### How are you using this Protocol / API?
 
@@ -43,7 +43,7 @@ The 1inch Aqua protocol is an excellent solution for shared liquidity management
 
 ---
 
-## Polygon - $20000
+## [Polygon - $20000](https://ethglobal.com/events/buenosaires/prizes/polygon)
 
 ### How are you using this Protocol / API?
 
@@ -75,7 +75,7 @@ Polygon provides an excellent developer experience with full EVM compatibility. 
 
 ---
 
-## Coinbase Developer Platform - $20000
+## [Coinbase Developer Platform - $20000](https://ethglobal.com/events/buenosaires/prizes/coinbase-developer-platform)
 
 ### How are you using this Protocol / API?
 
